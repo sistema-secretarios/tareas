@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Portal de Gestión | Pase y Asignación / Causas Asignadas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: white;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        /* Contenedor principal de los módulos (pantalla de inicio) */
+        .home-container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 3rem;
+        }
+
+        /* Módulos grandes y destacados */
+        .module {
+            flex: 1;
+            min-width: 280px;
+            max-width: 420px;
+            background: white;
+            border-radius: 2rem;
+            padding: 3rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: 2px solid rgba(30, 90, 247, 0.4);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(30, 90, 247, 0.1);
+            backdrop-filter: blur(0px);
+        }
+
+        /* Efecto glass azul en borde y sombra sutil */
+        .module:hover {
+            transform: translateY(-6px);
+            border-color: rgba(30, 90, 247, 0.8);
+            box-shadow: 0 20px 32px rgba(0, 0, 0, 0.08), 0 0 0 2px rgba(30, 90, 247, 0.2);
+            background: #fefefe;
+        }
+
+        .module:active {
+            transform: translateY(2px);
+        }
+
+        /* Título de cada módulo: solo texto, en azul, grande */
+        .module-title {
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            color: #1e5af7;
+            line-height: 1.3;
+            margin: 0;
+        }
+
+        /* Pantalla de contenido (iframe + botón regresar) */
+        .content-view {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+        }
+
+        .content-view.active {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.25s ease, visibility 0s linear 0s;
+        }
+
+        /* Barra superior con botón de regreso */
+        .back-bar {
+            background: white;
+            padding: 0.9rem 1.5rem;
+            border-bottom: 1px solid #eef2f8;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .back-btn {
+            background: #f0f4fe;
+            border: none;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #1e5af7;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .back-btn:hover {
+            background: #e2e9ff;
+        }
+
+        .back-btn:active {
+            transform: scale(0.97);
+        }
+
+        .back-arrow {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .url-indicator {
+            font-size: 0.85rem;
+            color: #6c86a3;
+            background: #f8fafc;
+            padding: 0.3rem 0.8rem;
+            border-radius: 30px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 50%;
+        }
+
+        /* iframe ocupa todo el espacio restante */
+        .iframe-container {
+            flex: 1;
+            width: 100%;
+            background: white;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        /* Responsive: módulos se apilan en móvil y se ven más grandes */
+        @media (max-width: 700px) {
+            body {
+                padding: 1.5rem;
+            }
+            .home-container {
+                gap: 2rem;
+            }
+            .module {
+                min-width: 260px;
+                padding: 2.5rem 1rem;
+            }
+            .module-title {
+                font-size: 1.7rem;
+            }
+            .back-bar {
+                padding: 0.7rem 1rem;
+            }
+            .back-btn {
+                padding: 0.4rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .module-title {
+                font-size: 1.5rem;
+            }
+            .module {
+                padding: 2rem 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Pantalla de inicio: dos módulos grandes -->
+    <div class="home-container" id="homeContainer">
+        <div class="module" data-url="https://sistema-secretarios.github.io/tareas/asignacion">
+            <div class="module-title">Pase y Asignacion</div>
+        </div>
+        <div class="module" data-url="https://sistema-secretarios.github.io/tareas/tareas">
+            <div class="module-title">Causas Asignadas</div>
+        </div>
+    </div>
+
+    <!-- Pantalla de contenido externo (se muestra al hacer clic) -->
+    <div class="content-view" id="contentView">
+        <div class="back-bar">
+            <button class="back-btn" id="backButton">
+                <span class="back-arrow">←</span> Volver al inicio
+            </button>
+            <div class="url-indicator" id="urlIndicator"></div>
+        </div>
+        <div class="iframe-container">
+            <iframe id="externalFrame" title="Contenido externo" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals"></iframe>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const homeContainer = document.getElementById('homeContainer');
+            const contentView = document.getElementById('contentView');
+            const externalFrame = document.getElementById('externalFrame');
+            const backButton = document.getElementById('backButton');
+            const urlIndicator = document.getElementById('urlIndicator');
+
+            // Obtener los módulos
+            const modules = document.querySelectorAll('.module');
+            
+            // Función para mostrar el contenido de la URL (en iframe)
+            function showExternalContent(url) {
+                // Configurar iframe
+                externalFrame.src = url;
+                urlIndicator.textContent = url;
+                // Ocultar pantalla de inicio y mostrar contentView
+                homeContainer.style.display = 'none';
+                contentView.classList.add('active');
+            }
+
+            // Función para regresar al inicio
+            function goBackToHome() {
+                // Limpiar iframe para detener carga
+                externalFrame.src = 'about:blank';
+                // Ocultar contentView y mostrar home
+                contentView.classList.remove('active');
+                homeContainer.style.display = 'flex';  // recuperar flex
+            }
+
+            // Asignar eventos a los módulos
+            modules.forEach(module => {
+                module.addEventListener('click', (e) => {
+                    const url = module.getAttribute('data-url');
+                    if (url) {
+                        showExternalContent(url);
+                    }
+                });
+                module.style.cursor = 'pointer';
+            });
+
+            // Evento del botón volver
+            backButton.addEventListener('click', goBackToHome);
+        })();
+    </script>
+</body>
+</html>
