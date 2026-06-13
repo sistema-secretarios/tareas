@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Panel de Asignación | Control y Gestión</title>
+    <!-- Bootstrap 5 + Icons + Google Fonts -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #eef2f9;
+            padding: 24px;
+            min-height: 100vh;
+        }
+        /* Pantalla de login - fondo igual al de tareas (fondo limpio #eef2f9) */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #eef2f9;  /* igual al fondo de la aplicación tareas */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            transition: all 0.3s ease;
+        }
+        .login-card {
+            background: white;
+            border-radius: 32px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            border: 1px solid rgba(25,118,210,0.2);
+        }
+        .login-card h2 {
+            color: #0a2a44;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        .login-card .icon {
+            font-size: 3rem;
+            color: #1976d2;
+            margin-bottom: 0.5rem;
+        }
+        .login-card input {
+            border-radius: 60px;
+            padding: 12px 20px;
+            border: 1px solid #cbdde9;
+            margin-bottom: 1.5rem;
+        }
+        .login-card button {
+            background: #1976d2;
+            border: none;
+            border-radius: 60px;
+            padding: 12px;
+            font-weight: 700;
+            width: 100%;
+        }
+        .error-message {
+            color: #c62828;
+            font-size: 0.8rem;
+            margin-top: -1rem;
+            margin-bottom: 1rem;
+        }
+        /* Dashboard principal */
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: none;
+        }
+        .dashboard-header {
+            background: linear-gradient(135deg, #0b3b5f 0%, #0a2a44 100%);
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .header-title h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 0;
+            color: white;
+            letter-spacing: -0.2px;
+        }
+        .header-title p {
+            margin: 0;
+            color: #b9d9ff;
+            font-size: 0.85rem;
+        }
+        /* Botón cerrar sesión estilo tareas */
+        .btn-logout {
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .btn-logout:hover {
+            background: #c62828;
+            border-color: #c62828;
+            color: white;
+        }
+        .upload-area-modern {
+            background: #f8fafd;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e2edf7;
+            text-align: center;
+        }
+        .upload-area-modern input {
+            background: white;
+            border: 1px solid #cbdde9;
+            border-radius: 60px;
+            padding: 10px 20px;
+            font-size: 0.85rem;
+        }
+        .status-modern {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #0a5b8c;
+        }
+        .filters-modern {
+            padding: 1.2rem 2rem;
+            background: white;
+            border-bottom: 1px solid #e9edf2;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 1rem;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 130px;
+        }
+        .filter-group label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #2c5a7a;
+            letter-spacing: 0.4px;
+        }
+        .filter-group select, .filter-group input {
+            background: #f9fcff;
+            border: 1px solid #cbdde9;
+            border-radius: 14px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            transition: 0.15s;
+        }
+        .filter-group select:focus, .filter-group input:focus {
+            border-color: #1976d2;
+            box-shadow: 0 0 0 3px rgba(25,118,210,0.2);
+            outline: none;
+        }
+        .btn-modern {
+            background: #eef2fa;
+            border: none;
+            border-radius: 40px;
+            padding: 8px 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: 0.2s;
+        }
+        .btn-modern-primary {
+            background: #1976d2;
+            color: white;
+        }
+        .btn-modern-primary:hover {
+            background: #0f5bab;
+        }
+        .btn-modern:hover {
+            background: #dee5ef;
+        }
+        /* KPI cards */
+        .info-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 1.5rem 2rem;
+            background: #f8fafd;
+            border-bottom: 1px solid #e2edf7;
+        }
+        .kpi-card-info {
+            background: white;
+            border-radius: 24px;
+            padding: 1rem 1.5rem;
+            flex: 1;
+            min-width: 160px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            border: 1px solid #e9f0f5;
+            text-align: center;
+        }
+        .kpi-card-info .title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #4a6f8f;
+            margin-bottom: 8px;
+        }
+        .kpi-card-info .value {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #0a2e4d;
+        }
+        .kpi-card-info .value-small {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .kpi-card-info .value.equality-green {
+            color: #2e7d32;
+            background: #e8f5e9;
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+        }
+        .kpi-card-info .value.equality-red {
+            color: #c62828;
+            background: #ffebee;
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+        }
+        .pagination-modern {
+            padding: 1rem 2rem;
+            background: #ffffff;
+            border-top: 1px solid #e9edf2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .pagination-controls button {
+            background: #f0f4f9;
+            border: none;
+            border-radius: 30px;
+            padding: 6px 12px;
+            margin: 0 4px;
+            font-weight: 600;
+        }
+        .pagination-controls button:disabled { opacity: 0.5; }
+        .table-wrapper {
+            overflow-x: auto;
+            max-height: 65vh;
+            scrollbar-width: thin;
+        }
+        .table {
+            margin: 0;
+            font-size: 0.8rem;
+            min-width: 1200px;
+        }
+        .table thead th {
+            background: #f1f6fd;
+            color: #1a4c74;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            border-bottom: 1px solid #dce5ec;
+            padding: 14px 10px;
+            white-space: nowrap;
+        }
+        .table tbody td {
+            padding: 12px 10px;
+            vertical-align: middle;
+            border-bottom: 1px solid #eef2f7;
+            color: #1f384f;
+        }
+        .table tbody tr:hover {
+            background-color: #f5faff;
+        }
+        .expediente-link {
+            font-weight: 700;
+            color: #0b5e9e;
+            cursor: pointer;
+            text-decoration: none;
+            border-bottom: 1px dashed #8bb9e0;
+        }
+        .estado-sin-asignar, .estado-asignado, .estado-control, .estado-firmado { font-weight: 700; }
+        .estado-sin-asignar { color: #5c6bc0; }
+        .estado-asignado { color: #e67e22; }
+        .estado-control { color: #1976d2; }
+        .estado-firmado { color: #2e7d32; }
+        .cronometro-vivo, .cronometro-excedido {
+            font-family: 'JetBrains Mono', monospace;
+            padding: 4px 8px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        .cronometro-vivo { background: #ecf3fa; color: #0a2e4d; }
+        .cronometro-excedido { background: #ffebee; color: #c62828 !important; text-decoration: underline; }
+        .motivo-rojo { color: #c62828; font-weight: bold; }
+        .modal-content { border-radius: 28px; border: none; }
+        .modal-header-azul { background: linear-gradient(135deg, #0b3b5f, #0a2a44); color: white; border-radius: 28px 28px 0 0; }
+        footer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #6683a3;
+            padding: 1rem;
+            background: #fafcff;
+            border-top: 1px solid #e9edf2;
+        }
+        @media (max-width: 800px) {
+            body { padding: 12px; }
+            .filters-modern { flex-direction: column; align-items: stretch; }
+            .info-cards { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- LANDING PAGE / LOGIN (fondo tipo tareas) -->
+<div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+        <div class="icon"><i class="bi bi-shield-lock-fill"></i></div>
+        <h2>Panel de Asignación</h2>
+        <p class="text-muted">Acceso restringido · Control de tareas</p>
+        <input type="password" id="accessPassword" class="form-control" placeholder="Clave de acceso" autocomplete="off">
+        <div id="loginError" class="error-message" style="display: none;">Clave incorrecta</div>
+        <button class="btn btn-primary" onclick="validarAcceso()">Ingresar al Sistema</button>
+    </div>
+</div>
+
+<!-- DASHBOARD PRINCIPAL (con botón cerrar sesión) -->
+<div id="mainDashboard" class="dashboard-container">
+    <div class="dashboard-header">
+        <div class="header-title">
+            <h2><i class="bi bi-clipboard-data-fill me-2"></i>Control y Asignación de Tareas</h2>
+            <p>Gestión de expedientes, tipos de proceso, asignación y cronómetros con alerta 48h</p>
+        </div>
+        <!-- Botón cerrar sesión estilo tareas -->
+        <button class="btn-logout" onclick="cerrarSesion()"><i class="bi bi-power"></i> Cerrar sesión</button>
+    </div>
+
+    <div class="upload-area-modern">
+        <input type="file" id="pdfUpload" accept=".pdf" multiple class="form-control d-inline-block w-auto">
+        <div id="status" class="status-modern">⏳ Inicializando sistemas...</div>
+    </div>
+
+    <div class="filters-modern" id="filtersSection" style="display: none;">
+        <div class="filter-group">
+            <label>Mes (Entrada)</label>
+            <select id="filterMes">
+                <option value="">Todos</option>
+                <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+                <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+                <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+                <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Año</label>
+            <select id="filterAnio"><option value="">Todos</option></select>
+        </div>
+        <div class="filter-group">
+            <label>Empleado Asignado</label>
+            <select id="filterEmpleado"><option value="">Todos</option></select>
+        </div>
+        <div class="filter-group">
+            <label>Tipo de Proceso</label>
+            <select id="filterTipoProceso">
+                <option value="">Todos</option>
+                <option value="Sin Definir">Sin Definir</option>
+                <option value="Familia">Familia</option>
+                <option value="Violencia familiar">Violencia familiar</option>
+                <option value="Civil">Civil</option>
+                <option value="Laboral">Laboral</option>
+                <option value="Administrativo">Administrativo</option>
+                <option value="Paz">Paz</option>
+                <option value="Penal">Penal</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Estado de la Tarea</label>
+            <select id="filterEstado">
+                <option value="">Todos</option>
+                <option value="Sin Asignar">Sin Asignar</option>
+                <option value="Asignado">Asignado</option>
+                <option value="En Control">En Control</option>
+                <option value="Firmado Defensor">Firmado Defensor</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Motivo No Asignación</label>
+            <select id="filterMotivoNoAsignacion">
+                <option value="">Todos</option>
+                <option value="Rechazado">Rechazado</option>
+                <option value="Devuelto">Devuelto</option>
+                <option value="Remitido">Remitido</option>
+                <option value="Abogado Particular">Abogado Particular</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Texto</label>
+            <input type="text" id="filterTexto" placeholder="Buscar expediente...">
+        </div>
+        <div class="filter-group">
+            <button class="btn-modern" onclick="aplicarFiltros()">🔍 Filtrar</button>
+        </div>
+        <div class="filter-group">
+            <button class="btn-modern" onclick="resetFiltros()">🗑️ Limpiar</button>
+        </div>
+        <div class="filter-group ms-auto">
+            <button class="btn-modern btn-modern-primary" onclick="imprimirFiltrados()">🖨️ Imprimir Reporte</button>
+        </div>
+    </div>
+
+    <!-- INFO CARDS -->
+    <div class="info-cards" id="infoContainer" style="display: none;">
+        <div class="kpi-card-info"><div class="title">🏆 Mayor Carga</div><div class="value" id="empMayor">-</div></div>
+        <div class="kpi-card-info"><div class="title">📉 Menor Carga</div><div class="value" id="empMenor">-</div></div>
+        <div class="kpi-card-info"><div class="title">⭐ Mejor Tiempo (≤48h)</div><div class="value" id="mejorPromedio">-</div></div>
+        <div class="kpi-card-info"><div class="title">⚠️ Más Excedidos (>48h)</div><div class="value" id="masExcedidos">-</div></div>
+        <div class="kpi-card-info"><div class="title">⚖️ Equidad de Carga</div><div class="value" id="equidadCarga">-</div></div>
+        <div class="kpi-card-info" style="background: #eef5ff;">
+            <div class="title">📊 Estadísticas de Vista</div>
+            <div class="value" id="totalGeneralCard">0</div>
+            <div class="value-small">Tareas totales</div>
+            <hr style="margin: 8px 0; opacity: 0.3;">
+            <div class="value" id="totalFiltradosCard">0</div>
+            <div class="value-small">Filtradas actualmente</div>
+        </div>
+    </div>
+
+    <div class="pagination-modern" id="paginationBar" style="display: none;">
+        <div>Total: <span id="totalRegistros">0</span> expedientes activos</div>
+        <div class="pagination-controls">
+            <button id="btnPrev" onclick="cambiarPagina(-1)">◀ Anterior</button>
+            <span>Página <span id="paginaActual">1</span> de <span id="totalPaginas">1</span></span>
+            <button id="btnNext" onclick="cambiarPagina(1)">Siguiente ▶</button>
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="table" id="tablaExpedientes">
+            <thead>
+                <tr>
+                    <th>Mov.</th><th>Fecha Entrada</th><th>Expediente</th><th>Tipo Proceso</th>
+                    <th>Empleado Asignado</th><th>F. Asignación</th><th>⏱️ Tiempo → Control</th>
+                    <th>F. Control</th><th>⏱️ Tiempo → Firma</th><th>F. Firma Defensor</th>
+                    <th>Estado Actual</th><th>Motivo No Asignación</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr><td colspan="12">Cargando base de datos...</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <footer>🔹 Haz clic en el número de expediente para gestionar tipo de proceso y fechas.</footer>
+</div>
+
+<!-- Modal de gestión -->
+<div class="modal fade" id="detalleCausaModal" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header modal-header-azul">
+                <h5 class="modal-title" id="detalleModalLabel">Gestionar Tarea de Expediente</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formGestionTarea">
+                    <input type="hidden" id="modalIdUnico">
+                    <p><strong>📌 Expediente:</strong> <span id="modalExpedienteTexto"></span></p>
+                    <p><strong>📅 Fecha Entrada SIGED:</strong> <span id="modalFechaEntradaTexto"></span></p>
+                    <hr>
+                    <div class="mb-3"><label class="form-label fw-bold">⚖️ Tipo de Proceso</label><select class="form-select" id="modalTipoProceso"><option value="Sin Definir">Sin Definir</option><option value="Familia">Familia</option><option value="Violencia familiar">Violencia familiar</option><option value="Civil">Civil</option><option value="Laboral">Laboral</option><option value="Administrativo">Administrativo</option><option value="Paz">Paz</option><option value="Penal">Penal</option></select></div>
+                    <div class="mb-3"><label class="form-label fw-bold">👤 Asignar a Empleado</label><select class="form-select" id="modalEmpleado"><option value="Sin Asignar">Sin Asignar</option></select></div>
+                    <div class="mb-3"><label class="form-label">📅 Fecha de Asignación</label><input type="date" class="form-control" id="modalFechaAsignacion"></div>
+                    <div class="mb-3"><label class="form-label">📅 Fecha Pase a Control</label><input type="date" class="form-control" id="modalFechaControl"></div>
+                    <div class="mb-3"><label class="form-label">📅 Fecha Firma Defensor</label><input type="date" class="form-control" id="modalFechaFirma"></div>
+                    <div class="mb-3"><label class="form-label">❓ Motivo de No Asignación (solo si empleado = Sin Asignar)</label><select class="form-select" id="modalMotivoNoAsignacion"><option value="">-- Sin motivo --</option><option value="Rechazado">Rechazado</option><option value="Devuelto">Devuelto</option><option value="Remitido">Remitido</option><option value="Abogado Particular">Abogado Particular</option></select></div>
+                </form>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="button" class="btn btn-primary" onclick="guardarCambiosTarea()">💾 Guardar Cambios</button></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- CIERRE DE SESIÓN (botón agregado) ----------
+    function cerrarSesion() {
+        // Ocultar dashboard, mostrar login
+        document.getElementById('mainDashboard').style.display = 'none';
+        document.getElementById('loginOverlay').style.display = 'flex';
+        // Detener intervalo de cronómetros
+        if (intervaloCronometros) {
+            clearInterval(intervaloCronometros);
+            intervaloCronometros = null;
+        }
+        // Limpiar datos globales
+        todosExpedientes = [];
+        datosFiltrados = [];
+        // Resetear input de contraseña y mensaje de error
+        document.getElementById('accessPassword').value = '';
+        document.getElementById('loginError').style.display = 'none';
+        // Opcional: limpiar cualquier listener duplicado del upload se reiniciará en próximo inicio de sesión
+    }
+
+    // ---------- FUNCIONES PRINCIPALES ----------
+    const LISTA_EMPLEADOS_FIJA = [
+        "Bazante Nadia Romina", "Boillat Cesar Enrique", "Cardozo Maria Raquel",
+        "Cedron Noelia Aurora", "Corrales Alicia Mariela", "Escobar Monica Graciela",
+        "Fioravante Romulo", "Gonzalez Alberto Misael", "Gonzalez Juan Jose",
+        "Gudiño Natalia Esther", "Magnani Enzo Luciano", "Pablos Patricia",
+        "Palacios Ana Gabriela", "Ortega Lucia Noemi", "Ramos Marcelo Gustavo",
+        "Riveros Patricia Soledad", "Sosa Rita Cecilia"
+    ];
+    
+    const firebaseConfigNuevo = {
+        apiKey: "AIzaSyDRG0j0G5j9Q64VCMf6_cuhAGI3nxWFfyM",
+        authDomain: "asignacion-expte.firebaseapp.com",
+        projectId: "asignacion-expte",
+        storageBucket: "asignacion-expte.firebasestorage.app",
+        messagingSenderId: "130918571230",
+        appId: "1:130918571230:web:1cb2c8e1f67b335315764f"
+    };
+    firebase.initializeApp(firebaseConfigNuevo);
+    const dbNuevo = firebase.firestore();
+    const coleccionTareas = dbNuevo.collection('tareas_expedientes');
+    
+    let todosExpedientes = [];
+    let datosFiltrados = [];
+    let paginaActual = 1;
+    const registrosPorPagina = 20;
+    let intervaloCronometros = null;
+    const LIMITE_HORAS = 48;
+    const LIMITE_MS = LIMITE_HORAS * 60 * 60 * 1000;
+    
+    // Funciones auxiliares
+    function normalizarExpediente(texto) { if (!texto) return ''; const match = texto.match(/^([0-9]+)/); return match ? match[1] : texto.trim(); }
+    function calcularEstadoTarea(exp) { if (exp.fechaFirmaDefensor) return "Firmado Defensor"; if (exp.fechaPaseControl) return "En Control"; if (exp.fechaAsignacion || (exp.usuarioAsignado && exp.usuarioAsignado !== 'Sin Asignar')) return "Asignado"; return "Sin Asignar"; }
+    function parseFechaDDMMAAAA(fechaStr) { const partes = fechaStr.split('/'); if (partes.length === 3) return new Date(parseInt(partes[2],10), parseInt(partes[1],10)-1, parseInt(partes[0],10)); return null; }
+    function formatFechaTabla(dateStr) { if(!dateStr) return '—'; const partes = dateStr.split('-'); if(partes.length === 3) return `${partes[2]}/${partes[1]}/${partes[0]}`; return dateStr; }
+    function obtenerDiferenciaMs(fechaInicioStr, fechaFinStr, usarAhora = true) { if (!fechaInicioStr) return null; const inicio = new Date(fechaInicioStr); if (isNaN(inicio)) return null; let fin; if (fechaFinStr) { fin = new Date(fechaFinStr); if (isNaN(fin)) return null; } else if (usarAhora) fin = new Date(); else return null; const diff = fin - inicio; return diff > 0 ? diff : 0; }
+    function msToLegible(ms) { if (ms === null || ms === undefined) return '—'; const seg = Math.floor(ms/1000), dias = Math.floor(seg/86400), horas = Math.floor((seg%86400)/3600), minutos = Math.floor((seg%3600)/60); if (dias > 0) return `${dias}d ${horas}h ${minutos}m`; if (horas > 0) return `${horas}h ${minutos}m`; return `${minutos}m`; }
+    function formatearTiempoConAlerta(ms) { if (ms === null || ms === undefined) return '<span class="cronometro-vivo">—</span>'; const texto = msToLegible(ms); if (ms > LIMITE_MS) return `<span class="cronometro-excedido">${texto}</span>`; else return `<span class="cronometro-vivo">${texto}</span>`; }
+    function getTiempoAsignacionControl(exp) { if (!exp.fechaAsignacion) return null; return exp.fechaPaseControl ? obtenerDiferenciaMs(exp.fechaAsignacion, exp.fechaPaseControl, false) : obtenerDiferenciaMs(exp.fechaAsignacion, null, true); }
+    function getTiempoControlFirma(exp) { if (!exp.fechaPaseControl) return null; return exp.fechaFirmaDefensor ? obtenerDiferenciaMs(exp.fechaPaseControl, exp.fechaFirmaDefensor, false) : obtenerDiferenciaMs(exp.fechaPaseControl, null, true); }
+    
+    function actualizarKPIsTiempos() {
+        const empleadosTiempos = new Map();
+        todosExpedientes.forEach(exp => {
+            const empleado = exp.usuarioAsignado;
+            if (!empleado || empleado === 'Sin Asignar' || !LISTA_EMPLEADOS_FIJA.includes(empleado)) return;
+            const tiempoAC = getTiempoAsignacionControl(exp);
+            if (tiempoAC !== null) { if (!empleadosTiempos.has(empleado)) empleadosTiempos.set(empleado, { buenos: [], excedidos: [] }); const item = empleadosTiempos.get(empleado); if (tiempoAC <= LIMITE_MS) item.buenos.push(tiempoAC); else item.excedidos.push(tiempoAC); }
+            const tiempoCF = getTiempoControlFirma(exp);
+            if (tiempoCF !== null) { if (!empleadosTiempos.has(empleado)) empleadosTiempos.set(empleado, { buenos: [], excedidos: [] }); const item = empleadosTiempos.get(empleado); if (tiempoCF <= LIMITE_MS) item.buenos.push(tiempoCF); else item.excedidos.push(tiempoCF); }
+        });
+        let mejorPromedio = Infinity, mejorEmpleado = '-';
+        for (let [emp, data] of empleadosTiempos.entries()) { if (data.buenos.length > 0) { const promedio = data.buenos.reduce((a,b)=>a+b,0)/data.buenos.length; if (promedio < mejorPromedio) { mejorPromedio = promedio; mejorEmpleado = emp; } } }
+        if (mejorEmpleado !== '-') document.getElementById('mejorPromedio').innerHTML = `${mejorEmpleado}<br><span style="font-size:12px;">promedio ${(mejorPromedio/(60*60*1000)).toFixed(1)}h</span>`;
+        else document.getElementById('mejorPromedio').innerText = '-';
+        let maxExcedidos = -1, empleadoExcedido = '-';
+        for (let [emp, data] of empleadosTiempos.entries()) { if (data.excedidos.length > maxExcedidos) { maxExcedidos = data.excedidos.length; empleadoExcedido = emp; } }
+        if (empleadoExcedido !== '-') document.getElementById('masExcedidos').innerHTML = `${empleadoExcedido}<br><span style="font-size:12px;">${maxExcedidos} tiempos >48h</span>`;
+        else document.getElementById('masExcedidos').innerText = '-';
+    }
+    
+    function actualizarCronometrosTabla() {
+        const filas = document.querySelectorAll('#tableBody tr');
+        filas.forEach(fila => {
+            const expedienteSpan = fila.querySelector('.expediente-link');
+            if (!expedienteSpan) return;
+            const match = expedienteSpan.getAttribute('onclick')?.match(/abrirPanelGestion\('([^']+)'\)/);
+            if (!match) return;
+            const id = match[1];
+            const exp = todosExpedientes.find(e => e.id === id);
+            if (!exp) return;
+            const msAC = getTiempoAsignacionControl(exp), msCF = getTiempoControlFirma(exp);
+            const celdaAC = fila.cells[6], celdaCF = fila.cells[8];
+            if (celdaAC) celdaAC.innerHTML = formatearTiempoConAlerta(msAC);
+            if (celdaCF) celdaCF.innerHTML = formatearTiempoConAlerta(msCF);
+        });
+        actualizarKPIsTiempos();
+    }
+    
+    async function cargarHistorialGuardado() {
+        const statusDiv = document.getElementById('status');
+        try {
+            const snapshot = await coleccionTareas.get();
+            let expedientesCargados = [];
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                let fechaDate = data.fechaDate?.toDate ? data.fechaDate.toDate() : parseFechaDDMMAAAA(data.fechaStr);
+                let item = { id: doc.id, movimiento: data.movimiento, fechaStr: data.fechaStr, fechaDate, expediente: data.expediente, usuarioAsignado: data.usuarioAsignado || 'Sin Asignar', fechaAsignacion: data.fechaAsignacion || '', fechaPaseControl: data.fechaPaseControl || '', fechaFirmaDefensor: data.fechaFirmaDefensor || '', tipoProceso: data.tipoProceso || 'Sin Definir', motivoNoAsignacion: data.motivoNoAsignacion || '' };
+                item.estadoControl = calcularEstadoTarea(item);
+                expedientesCargados.push(item);
+            });
+            todosExpedientes = expedientesCargados.sort((a,b)=>(b.fechaDate||0)-(a.fechaDate||0));
+            if(todosExpedientes.length){
+                actualizarSelectoresDinamicos();
+                document.getElementById('filtersSection').style.display = 'flex';
+                document.getElementById('infoContainer').style.display = 'flex';
+                document.getElementById('paginationBar').style.display = 'flex';
+                aplicarFiltros();
+                statusDiv.innerHTML = `✅ ${todosExpedientes.length} expedientes sincronizados. Alertas de 48h activas.`;
+                if(intervaloCronometros) clearInterval(intervaloCronometros);
+                intervaloCronometros = setInterval(()=>{ if(document.getElementById('tableBody') && todosExpedientes.length) actualizarCronometrosTabla(); },1000);
+                actualizarKPIsTiempos();
+            } else {
+                statusDiv.innerHTML = "✅ No hay expedientes. Sube un PDF del SIGED.";
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="12">Cargue un archivo PDF para procesar.</td></td>';
+                actualizarKPI();
+            }
+        } catch(error){ statusDiv.innerHTML = "⚠️ Error crítico con Firestore."; }
+    }
+    
+    const pdfjsLib = window.pdfjsLib;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    async function procesarPDFs(files) {
+        if(!files.length) return;
+        const statusDiv = document.getElementById('status');
+        statusDiv.innerHTML = "⏳ Extrayendo registros del PDF...";
+        const promesas = Array.from(files).map(async file => {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let texto = "";
+            for(let i=1;i<=pdf.numPages;i++){ const page = await pdf.getPage(i); const tc = await page.getTextContent(); texto += " "+tc.items.map(t=>t.str).join(" "); }
+            return texto.replace(/\s+/g," ");
+        });
+        const contenidos = await Promise.all(promesas);
+        const textoUnificado = contenidos.join(" ");
+        const regex = /(EN|SA)\s+(\d{2}\/\d{2}\/\d{4})\s+(\d+(?:\/\d+)?(?:\s+bis\/\d+)?)/gi;
+        let nuevosItems = [], match;
+        while((match = regex.exec(textoUnificado)) !== null){
+            const numNorm = normalizarExpediente(match[3].trim().replace(/\s+/g," "));
+            const idUnico = `${numNorm}_${match[2].replace(/\//g,'-')}_${match[1].trim()}`;
+            nuevosItems.push({ id: idUnico, movimiento: match[1].trim(), fechaStr: match[2].trim(), fechaDate: parseFechaDDMMAAAA(match[2].trim()), expediente: match[3].trim().replace(/\s+/g," ") });
+        }
+        if(!nuevosItems.length){ statusDiv.innerHTML = "⚠️ No se detectó el formato patrón de expedientes SIGED."; return; }
+        statusDiv.innerHTML = `⏳ Procesando ${nuevosItems.length} expedientes (solo se actualizan datos inmutables)...`;
+        for(let i=0;i<nuevosItems.length;i+=450){
+            const batch = dbNuevo.batch();
+            nuevosItems.slice(i,i+450).forEach(item => { batch.set(coleccionTareas.doc(item.id), { movimiento: item.movimiento, fechaStr: item.fechaStr, fechaDate: item.fechaDate, expediente: item.expediente }, { merge: true }); });
+            await batch.commit();
+        }
+        statusDiv.innerHTML = `✅ Procesado. Los datos editables no se modificaron.`;
+        await cargarHistorialGuardado();
+    }
+    
+    function actualizarSelectoresDinamicos() {
+        const aniosSet = new Set(); todosExpedientes.forEach(exp=>{ if(exp.fechaDate) aniosSet.add(exp.fechaDate.getFullYear()); });
+        const selectAnio = document.getElementById('filterAnio');
+        selectAnio.innerHTML = '<option value="">Todos</option>';
+        Array.from(aniosSet).sort((a,b)=>b-a).forEach(anio => selectAnio.innerHTML += `<option value="${anio}">${anio}</option>`);
+        const selectEmp = document.getElementById('filterEmpleado');
+        selectEmp.innerHTML = '<option value="">Todos</option><option value="Sin Asignar">Sin Asignar</option>';
+        LISTA_EMPLEADOS_FIJA.forEach(emp => selectEmp.innerHTML += `<option value="${emp}">${emp}</option>`);
+    }
+    
+    function aplicarFiltros() {
+        const mes = document.getElementById('filterMes').value, anio = document.getElementById('filterAnio').value, empleado = document.getElementById('filterEmpleado').value, tipoProceso = document.getElementById('filterTipoProceso').value, estado = document.getElementById('filterEstado').value, motivo = document.getElementById('filterMotivoNoAsignacion').value, texto = document.getElementById('filterTexto').value.trim().toLowerCase();
+        datosFiltrados = todosExpedientes.filter(exp => {
+            if(mes && exp.fechaDate && exp.fechaDate.getMonth()+1 !== parseInt(mes)) return false;
+            if(anio && exp.fechaDate && exp.fechaDate.getFullYear() !== parseInt(anio)) return false;
+            if(empleado && exp.usuarioAsignado !== empleado) return false;
+            if(tipoProceso && exp.tipoProceso !== tipoProceso) return false;
+            if(estado && exp.estadoControl !== estado) return false;
+            if(motivo && exp.motivoNoAsignacion !== motivo) return false;
+            if(texto && !`${exp.expediente} ${exp.usuarioAsignado} ${exp.tipoProceso} ${exp.estadoControl}`.toLowerCase().includes(texto)) return false;
+            return true;
+        });
+        paginaActual = 1; mostrarPagina(); actualizarKPI(); actualizarKPIsTiempos();
+    }
+    
+    function mostrarPagina() {
+        const tbody = document.getElementById('tableBody'); tbody.innerHTML = '';
+        const inicio = (paginaActual-1)*registrosPorPagina, paginaDatos = datosFiltrados.slice(inicio, inicio+registrosPorPagina);
+        if(!paginaDatos.length){ tbody.innerHTML = '<tr><td colspan="12">No hay expedientes con esos filtros.</td></tr>'; document.getElementById('totalRegistros').innerText = datosFiltrados.length; document.getElementById('totalPaginas').innerText = '1'; return; }
+        paginaDatos.forEach(exp => {
+            let estadoClass = 'estado-sin-asignar';
+            if(exp.estadoControl === 'Asignado') estadoClass = 'estado-asignado';
+            else if(exp.estadoControl === 'En Control') estadoClass = 'estado-control';
+            else if(exp.estadoControl === 'Firmado Defensor') estadoClass = 'estado-firmado';
+            const msAC = getTiempoAsignacionControl(exp), msCF = getTiempoControlFirma(exp);
+            let motivoMostrar = '—', motivoClase = '';
+            if(exp.estadoControl === 'Sin Asignar' && exp.motivoNoAsignacion){ motivoMostrar = exp.motivoNoAsignacion; motivoClase = 'motivo-rojo'; }
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${exp.movimiento||''}</strong></td>
+                <td>${exp.fechaStr||''}</td>
+                <td><span class="expediente-link" onclick="abrirPanelGestion('${exp.id}')">${exp.expediente||''}</span></td>
+                <td>${exp.tipoProceso||'Sin Definir'}</td>
+                <td>${exp.usuarioAsignado||'Sin Asignar'}</td>
+                <td>${formatFechaTabla(exp.fechaAsignacion)}</td>
+                <td>${formatearTiempoConAlerta(msAC)}</td>
+                <td>${formatFechaTabla(exp.fechaPaseControl)}</td>
+                <td>${formatearTiempoConAlerta(msCF)}</td>
+                <td>${formatFechaTabla(exp.fechaFirmaDefensor)}</td>
+                <td class="${estadoClass}">${exp.estadoControl}</td>
+                <td class="${motivoClase}">${motivoMostrar}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+        document.getElementById('totalRegistros').innerText = datosFiltrados.length;
+        const totalPaginas = Math.ceil(datosFiltrados.length/registrosPorPagina)||1;
+        document.getElementById('totalPaginas').innerText = totalPaginas;
+        document.getElementById('paginaActual').innerText = paginaActual;
+        document.getElementById('btnPrev').disabled = (paginaActual===1);
+        document.getElementById('btnNext').disabled = (paginaActual===totalPaginas);
+    }
+    
+    function actualizarKPI() {
+        document.getElementById('totalGeneralCard').innerText = todosExpedientes.length;
+        document.getElementById('totalFiltradosCard').innerText = datosFiltrados.length;
+        const conteo = {};
+        datosFiltrados.forEach(exp => { if(exp.usuarioAsignado && exp.usuarioAsignado !== 'Sin Asignar') conteo[exp.usuarioAsignado] = (conteo[exp.usuarioAsignado]||0)+1; });
+        const emps = Object.keys(conteo);
+        if(emps.length===0){ document.getElementById('empMayor').innerText = '-'; document.getElementById('empMenor').innerText = '-'; }
+        else { let max=emps[0], min=emps[0]; emps.forEach(e=>{ if(conteo[e] > conteo[max]) max=e; if(conteo[e] < conteo[min]) min=e; }); document.getElementById('empMayor').innerHTML = `${max}<br><span style="font-size:12px;">${conteo[max]} tareas</span>`; document.getElementById('empMenor').innerHTML = `${min}<br><span style="font-size:12px;">${conteo[min]} tareas</span>`; }
+        const countsArray = Object.values(conteo);
+        let isEqual = countsArray.length > 1 ? countsArray.every(c => c === countsArray[0]) : true;
+        const equidadDiv = document.getElementById('equidadCarga');
+        if (countsArray.length === 0) equidadDiv.innerHTML = '<span class="equality-green">📊 Sin empleados asignados</span>';
+        else if (isEqual) equidadDiv.innerHTML = '<span class="equality-green">✅ Existe igualdad de cantidades</span>';
+        else equidadDiv.innerHTML = '<span class="equality-red">❌ No existe igualdad de cantidades</span>';
+    }
+    
+    function cambiarPagina(delta) { const total = Math.ceil(datosFiltrados.length/registrosPorPagina)||1; let nueva = paginaActual+delta; if(nueva>=1 && nueva<=total){ paginaActual=nueva; mostrarPagina(); } }
+    function resetFiltros() { document.getElementById('filterMes').value=''; document.getElementById('filterAnio').value=''; document.getElementById('filterEmpleado').value=''; document.getElementById('filterTipoProceso').value=''; document.getElementById('filterEstado').value=''; document.getElementById('filterMotivoNoAsignacion').value=''; document.getElementById('filterTexto').value=''; aplicarFiltros(); }
+    function abrirPanelGestion(id) { const exp = todosExpedientes.find(e=>e.id===id); if(!exp) return; document.getElementById('modalIdUnico').value=exp.id; document.getElementById('modalExpedienteTexto').innerText=exp.expediente; document.getElementById('modalFechaEntradaTexto').innerText=exp.fechaStr; document.getElementById('modalTipoProceso').value=exp.tipoProceso||'Sin Definir'; const selectEmp = document.getElementById('modalEmpleado'); selectEmp.innerHTML = '<option value="Sin Asignar">Sin Asignar</option>'; LISTA_EMPLEADOS_FIJA.forEach(emp=>selectEmp.innerHTML+=`<option value="${emp}">${emp}</option>`); let valor = exp.usuarioAsignado; if(valor!=='Sin Asignar' && !LISTA_EMPLEADOS_FIJA.includes(valor)) valor='Sin Asignar'; selectEmp.value=valor; document.getElementById('modalFechaAsignacion').value=exp.fechaAsignacion||''; document.getElementById('modalFechaControl').value=exp.fechaPaseControl||''; document.getElementById('modalFechaFirma').value=exp.fechaFirmaDefensor||''; document.getElementById('modalMotivoNoAsignacion').value=exp.motivoNoAsignacion||''; new bootstrap.Modal(document.getElementById('detalleCausaModal')).show(); }
+    async function guardarCambiosTarea() { const id = document.getElementById('modalIdUnico').value, tipo = document.getElementById('modalTipoProceso').value, emp = document.getElementById('modalEmpleado').value, fAsig = document.getElementById('modalFechaAsignacion').value, fControl = document.getElementById('modalFechaControl').value, fFirma = document.getElementById('modalFechaFirma').value, motivo = (emp !== 'Sin Asignar') ? '' : document.getElementById('modalMotivoNoAsignacion').value; const statusDiv = document.getElementById('status'); statusDiv.innerHTML = "⏳ Actualizando..."; try { await coleccionTareas.doc(id).update({ tipoProceso: tipo, usuarioAsignado: emp, fechaAsignacion: fAsig, fechaPaseControl: fControl, fechaFirmaDefensor: fFirma, motivoNoAsignacion: motivo }); bootstrap.Modal.getInstance(document.getElementById('detalleCausaModal')).hide(); await cargarHistorialGuardado(); statusDiv.innerHTML = "✅ Cambios guardados."; } catch(e){ alert("Error: "+e.message); } }
+    function imprimirFiltrados() { if(!datosFiltrados.length) return alert("No hay registros."); let filas=''; datosFiltrados.forEach(exp=>{ const msAC=getTiempoAsignacionControl(exp), msCF=getTiempoControlFirma(exp); let motivo='—', estilo=''; if(exp.estadoControl==='Sin Asignar' && exp.motivoNoAsignacion){ motivo=exp.motivoNoAsignacion; estilo=' style="color:red;"'; } filas+=`<tr><td>${exp.movimiento}</td><td>${exp.fechaStr}</td><td>${exp.expediente}</td><td>${exp.tipoProceso}</td><td>${exp.usuarioAsignado}</td><td>${formatFechaTabla(exp.fechaAsignacion)}</td><td>${msToLegible(msAC)}</td><td>${formatFechaTabla(exp.fechaPaseControl)}</td><td>${msToLegible(msCF)}</td><td>${formatFechaTabla(exp.fechaFirmaDefensor)}</td><td>${exp.estadoControl}</td><td${estilo}>${motivo}</td></tr>`; }); const win = window.open(); win.document.write(`<html><head><title>Reporte de Tareas</title><style>body{font-family:sans-serif;padding:20px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #aaa;padding:6px}</style></head><body><h2>Reporte de Expedientes</h2><table border="1"><thead><tr><th>Mov</th><th>Entrada</th><th>Expediente</th><th>Tipo</th><th>Empleado</th><th>Asignado</th><th>Tiempo→Control</th><th>Control</th><th>Tiempo→Firma</th><th>Firma Def.</th><th>Estado</th><th>Motivo</th></tr></thead><tbody>${filas}</tbody></table></body></html>`); win.document.close(); win.print(); }
+    
+    function iniciarSistema() {
+        // Limpiar posible intervalo anterior
+        if (intervaloCronometros) clearInterval(intervaloCronometros);
+        // Remover eventos duplicados del input file
+        const uploadInput = document.getElementById('pdfUpload');
+        if (uploadInput) {
+            uploadInput.onchange = null;
+            uploadInput.addEventListener('change', e => { if(e.target.files.length) procesarPDFs(e.target.files); });
+        }
+        cargarHistorialGuardado();
+    }
+    
+    function validarAcceso() {
+        const password = document.getElementById('accessPassword').value;
+        const errorDiv = document.getElementById('loginError');
+        if (password === "acceso6") {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('mainDashboard').style.display = 'block';
+            iniciarSistema();
+        } else {
+            errorDiv.style.display = 'block';
+            setTimeout(() => { errorDiv.style.display = 'none'; }, 2000);
+        }
+    }
+
+    // --- NUEVO: Permitir ingresar con la tecla Enter en el campo de contraseña ---
+    document.getElementById('accessPassword').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            validarAcceso();
+        }
+    });
+</script>
+</body>
+</html>
