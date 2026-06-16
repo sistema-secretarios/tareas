@@ -33,7 +33,32 @@
             gap: 3rem;
         }
 
-        /* Módulos grandes y destacados */
+        /* Contenedor del título: ocupa todo el ancho */
+        .title-container {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .title-container h1,
+        .title-container h2 {
+            font-weight: bold;
+            color: #0a2a6b; /* azul oscuro */
+            letter-spacing: -0.3px;
+            line-height: 1.3;
+        }
+
+        .title-container h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.15rem;
+        }
+
+        .title-container h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        /* Módulos grandes y destacados con borde y destello azul */
         .module {
             flex: 1;
             min-width: 280px;
@@ -43,17 +68,36 @@
             padding: 3rem 1.5rem;
             text-align: center;
             cursor: pointer;
-            transition: all 0.25s ease;
-            border: 2px solid rgba(30, 90, 247, 0.4);
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(30, 90, 247, 0.1);
-            backdrop-filter: blur(0px);
+            transition: all 0.3s ease;
+            /* Borde sólido azul y sombra con glow */
+            border: 2px solid #1e5af7;
+            box-shadow: 0 0 12px rgba(30, 90, 247, 0.3),
+                        0 0 25px rgba(30, 90, 247, 0.1);
+            animation: glowPulse 2.5s infinite ease-in-out;
         }
 
-        /* Efecto glass azul en borde y sombra sutil */
+        /* Animación de destello (glow) */
+        @keyframes glowPulse {
+            0% {
+                box-shadow: 0 0 12px rgba(30, 90, 247, 0.3),
+                            0 0 25px rgba(30, 90, 247, 0.1);
+            }
+            50% {
+                box-shadow: 0 0 25px rgba(30, 90, 247, 0.6),
+                            0 0 50px rgba(30, 90, 247, 0.25);
+            }
+            100% {
+                box-shadow: 0 0 12px rgba(30, 90, 247, 0.3),
+                            0 0 25px rgba(30, 90, 247, 0.1);
+            }
+        }
+
         .module:hover {
             transform: translateY(-6px);
-            border-color: rgba(30, 90, 247, 0.8);
-            box-shadow: 0 20px 32px rgba(0, 0, 0, 0.08), 0 0 0 2px rgba(30, 90, 247, 0.2);
+            border-color: #1e5af7;
+            box-shadow: 0 0 30px rgba(30, 90, 247, 0.7),
+                        0 0 60px rgba(30, 90, 247, 0.3);
+            animation: none; /* pausamos la animación en hover para dar más fuerza */
             background: #fefefe;
         }
 
@@ -174,6 +218,12 @@
             .module-title {
                 font-size: 1.7rem;
             }
+            .title-container h1 {
+                font-size: 1.8rem;
+            }
+            .title-container h2 {
+                font-size: 1.1rem;
+            }
             .back-bar {
                 padding: 0.7rem 1rem;
             }
@@ -190,6 +240,12 @@
             .module {
                 padding: 2rem 0.8rem;
             }
+            .title-container h1 {
+                font-size: 1.5rem;
+            }
+            .title-container h2 {
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
@@ -197,6 +253,12 @@
 
     <!-- Pantalla de inicio: dos módulos grandes -->
     <div class="home-container" id="homeContainer">
+        <!-- Título superior, ocupa todo el ancho -->
+        <div class="title-container">
+            <h1>Defensoría Civil y Comercial 6</h1>
+            <h2>Ministerio Público de Misiones</h2>
+        </div>
+
         <div class="module" data-url="https://sistema-secretarios.github.io/tareas/asignacion">
             <div class="module-title">Pase y Asignacion</div>
         </div>
