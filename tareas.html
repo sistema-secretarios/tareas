@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Panel de Consulta | Mis Tareas Asignadas</title>
-    <!-- Bootstrap 5 + Icons + Google Fonts -->
+    <title>Causas Asignadas Empleados</title>
+    <!-- Bootstrap 5 + Google Fonts (Inter) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -18,73 +17,99 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'Inter', sans-serif;
-            background: #eef2f9;
-            padding: 24px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f7fc;
+            padding: 20px;
             min-height: 100vh;
+            color: #1e293b;
+            line-height: 1.5;
         }
-        /* Login card (mismo estilo que control-pases) */
+
+        /* Login */
         .login-wrapper {
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 85vh;
+            min-height: 80vh;
         }
         .login-card {
             background: #ffffff;
-            border-radius: 32px;
-            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.15);
-            padding: 2rem 2rem 2.2rem;
+            border-radius: 28px;
+            box-shadow: 0 20px 40px -12px rgba(0, 20, 40, 0.20);
+            padding: 2.5rem 2rem;
             width: 100%;
-            max-width: 460px;
-            border: 1px solid rgba(25, 118, 210, 0.2);
+            max-width: 420px;
+            border: 1px solid #e9edf4;
             text-align: center;
         }
         .login-card h3 {
             font-weight: 700;
-            color: #0a2b4e;
+            font-size: 1.6rem;
+            color: #0b2b44;
+            margin-bottom: 0.5rem;
             letter-spacing: -0.3px;
         }
-        .login-card .icon {
-            font-size: 48px;
-            color: #1976d2;
-            margin-bottom: 0.5rem;
+        .login-card p {
+            color: #5b6f87;
+            font-size: 0.95rem;
+            margin-bottom: 1.8rem;
         }
-        .login-card input, .login-card select {
+        .login-card select,
+        .login-card input {
             border-radius: 60px;
-            padding: 12px 20px;
-            border: 1px solid #cbdde9;
-            margin-bottom: 1rem;
+            padding: 14px 20px;
+            border: 1px solid #d4deea;
+            background: #fafcff;
+            font-size: 1rem;
+            width: 100%;
+            margin-bottom: 1.2rem;
+            transition: border 0.15s;
+        }
+        .login-card select:focus,
+        .login-card input:focus {
+            border-color: #2563eb;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
         }
         .login-card button {
-            background: #1976d2;
+            background: #1e3a5f;
             border: none;
             border-radius: 60px;
-            padding: 12px;
-            font-weight: 700;
+            padding: 14px;
+            font-weight: 600;
+            font-size: 1rem;
+            color: white;
             width: 100%;
+            transition: background 0.2s;
+            cursor: pointer;
         }
-        /* Dashboard container */
+        .login-card button:hover {
+            background: #0f2a47;
+        }
+
+        /* Dashboard */
         .dashboard-container {
             max-width: 1600px;
             margin: 0 auto;
             background: #ffffff;
-            border-radius: 32px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            border-radius: 28px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
             overflow: hidden;
         }
+
+        /* Header */
         .dashboard-header {
-            background: linear-gradient(135deg, #0b3b5f 0%, #0a2a44 100%);
-            padding: 1.2rem 2rem;
+            background: #122b44;
+            padding: 1.2rem 1.8rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 1rem;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
         .user-info h2 {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: 700;
             margin: 0;
             color: white;
@@ -92,132 +117,189 @@
         }
         .user-info p {
             margin: 0;
-            color: #b9d9ff;
+            color: #a1c4e8;
             font-size: 0.85rem;
-            font-weight: 500;
+            font-weight: 400;
+        }
+        .user-info p strong {
+            color: white;
         }
         .btn-logout {
-            background: rgba(255,255,255,0.12);
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255, 255, 255, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.25);
             color: white;
-            padding: 8px 20px;
+            padding: 8px 22px;
             border-radius: 40px;
             font-weight: 600;
+            font-size: 0.9rem;
             transition: 0.2s;
             cursor: pointer;
+            backdrop-filter: blur(4px);
         }
         .btn-logout:hover {
-            background: #c62828;
-            border-color: #c62828;
+            background: #b91c1c;
+            border-color: #b91c1c;
             color: white;
         }
-        /* KPI Cards estilo control-pases */
+
+        /* KPI Cards */
         .kpi-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 1.2rem;
+            gap: 1rem;
             padding: 1.5rem 2rem;
-            background: #f8fafd;
-            border-bottom: 1px solid #e2edf7;
+            background: #f8faff;
+            border-bottom: 1px solid #e9edf4;
         }
         .kpi-card {
             background: white;
-            border-radius: 24px;
-            padding: 1rem 1.5rem;
-            flex: 1;
-            min-width: 160px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-            border: 1px solid #e9f0f5;
+            border-radius: 20px;
+            padding: 1rem 1.2rem;
+            flex: 1 1 140px;
+            min-width: 120px;
+            border: 1px solid #e9edf4;
             text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
         }
         .kpi-card .kpi-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
-            color: #4a6f8f;
-            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+            color: #4a6a8a;
+            margin-bottom: 6px;
         }
         .kpi-card .kpi-value {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #0a2e4d;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #0b2b44;
             line-height: 1.2;
         }
-        .kpi-card.danger .kpi-value { color: #c62828; }
-        .kpi-card.warning .kpi-value { color: #e67e22; }
-        /* Barra de filtros */
+        .kpi-card.danger .kpi-value {
+            color: #b91c1c;
+        }
+        .kpi-card.warning .kpi-value {
+            color: #b45a1c;
+        }
+
+        /* FILTROS CON TOGGLE */
         .filters-bar {
-            padding: 1rem 2rem;
+            padding: 1.2rem 2rem;
             background: white;
-            border-bottom: 1px solid #e9edf2;
+            border-bottom: 1px solid #e9edf4;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .btn-filtros-toggle {
+            display: none; /* oculto en escritorio */
+            background: #eef2f8;
+            border: none;
+            border-radius: 40px;
+            padding: 8px 24px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #1e293b;
+            align-self: flex-start;
+        }
+        .btn-filtros-toggle:hover {
+            background: #dce3ee;
+        }
+
+        #filtrosContainer {
             display: flex;
             flex-wrap: wrap;
             align-items: flex-end;
-            gap: 1rem;
+            gap: 1rem 1.5rem;
         }
+
         .filter-group {
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            min-width: 150px;
+            gap: 4px;
+            min-width: 120px;
+            flex: 1 0 auto;
         }
         .filter-group label {
             font-size: 0.7rem;
             font-weight: 700;
-            color: #2c5a7a;
-            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: #3a5a7a;
         }
-        .filter-group select, .filter-group input {
-            background: #f9fcff;
-            border: 1px solid #cbdde9;
+        .filter-group select,
+        .filter-group input {
+            background: #fafcff;
+            border: 1px solid #d4deea;
             border-radius: 14px;
             padding: 8px 14px;
             font-size: 0.85rem;
             transition: 0.15s;
+            width: 100%;
         }
-        .filter-group select:focus, .filter-group input:focus {
-            border-color: #1976d2;
-            box-shadow: 0 0 0 3px rgba(25,118,210,0.2);
+        .filter-group select:focus,
+        .filter-group input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
             outline: none;
         }
-        .btn-clean, .btn-print {
-            background: #eef2fa;
+
+        /* Botones de acción en una línea */
+        .botones-filtros {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 0 0 auto;
+        }
+        .botones-filtros .filter-group {
+            flex: 0 0 auto;
+            min-width: unset;
+        }
+        .btn-modern {
+            background: #eef2f8;
             border: none;
             border-radius: 40px;
             padding: 8px 20px;
             font-weight: 600;
             font-size: 0.8rem;
             transition: 0.2s;
+            cursor: pointer;
+            color: #1e293b;
         }
-        .btn-clean:hover, .btn-print:hover {
-            background: #dee5ef;
-        }
-        .btn-print {
-            background: #1976d2;
+        .btn-modern-primary {
+            background: #1e3a5f;
             color: white;
         }
-        .btn-print:hover {
-            background: #0f5bab;
+        .btn-modern-primary:hover {
+            background: #0f2a47;
         }
-        /* Tabla profesional */
+        .btn-modern:hover {
+            background: #dce3ee;
+        }
+
+        /* Table */
         .table-wrapper {
             overflow-x: auto;
             max-height: 62vh;
             scrollbar-width: thin;
+            padding: 0;
         }
         .table {
             margin: 0;
             font-size: 0.8rem;
-            min-width: 1100px;
+            min-width: 1000px;
+            width: 100%;
         }
         .table thead th {
             background: #f1f6fd;
-            color: #1a4c74;
+            color: #1a3f5f;
             font-weight: 700;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
-            letter-spacing: 0.4px;
+            letter-spacing: 0.3px;
             border-bottom: 1px solid #dce5ec;
             padding: 14px 10px;
             white-space: nowrap;
@@ -226,36 +308,23 @@
             padding: 12px 10px;
             vertical-align: middle;
             border-bottom: 1px solid #eef2f7;
-            color: #1f384f;
+            color: #1e3349;
         }
         .table tbody tr:hover {
             background-color: #f5faff;
         }
         .expediente-link {
             font-weight: 700;
-            color: #0b5e9e;
+            color: #1a5a8a;
             cursor: pointer;
             text-decoration: none;
-            border-bottom: 1px dashed #8bb9e0;
+            border-bottom: 1px dashed #92b9db;
         }
-        .expediente-link:hover { color: #022b49; }
-        /* Estilos cronómetros y alertas */
-        .badge-timer {
-            font-family: 'JetBrains Mono', 'Courier New', monospace;
-            background: #ecf3fa;
-            padding: 4px 8px;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            display: inline-block;
-            white-space: nowrap;
+        .expediente-link:hover {
+            color: #0b3b5f;
         }
-        .timer-excedido {
-            background: #ffebee;
-            color: #c62828 !important;
-            font-weight: 800;
-            box-shadow: 0 0 0 1px #ffcdd2;
-        }
+
+        /* Badges de estado */
         .estado-badge {
             display: inline-block;
             padding: 4px 12px;
@@ -264,57 +333,293 @@
             font-size: 0.7rem;
             text-align: center;
         }
-        .estado-asignado { background: #fff3e0; color: #e67e22; }
-        .estado-control { background: #e3f2fd; color: #1976d2; }
-        .estado-firmado { background: #e8f5e9; color: #2e7d32; }
+        .estado-asignado {
+            background: #fff3e0;
+            color: #b45a1c;
+        }
+        .estado-control {
+            background: #e3f2fd;
+            color: #1a5a8a;
+        }
+        .estado-firmado {
+            background: #e8f5e9;
+            color: #0f6e3f;
+        }
+
+        /* Cronómetros */
+        .badge-timer {
+            font-family: 'Inter', monospace;
+            background: #ecf3fa;
+            padding: 4px 10px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.7rem;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        .timer-excedido {
+            background: #fde8e8;
+            color: #b91c1c !important;
+            font-weight: 800;
+            box-shadow: 0 0 0 1px #ffcdd2;
+        }
+
+        /* Botón editar control */
+        .edit-control-btn {
+            background: none;
+            border: none;
+            color: #1a5a8a;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-left: 4px;
+            padding: 0 4px;
+            font-weight: 600;
+            text-decoration: underline dotted;
+        }
+        .edit-control-btn:hover {
+            color: #0b3b5f;
+        }
+
         /* Paginación */
         .pagination-modern {
             padding: 1rem 2rem;
             background: #ffffff;
-            border-top: 1px solid #e9edf2;
+            border-top: 1px solid #e9edf4;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
+            gap: 0.8rem;
         }
         .page-controls .page-btn {
             background: #f0f4f9;
             border: none;
             margin: 0 3px;
-            padding: 6px 12px;
+            padding: 6px 14px;
             border-radius: 30px;
             font-weight: 600;
-            color: #1a4c74;
+            font-size: 0.8rem;
+            color: #1a3f5f;
+            cursor: pointer;
+            transition: 0.15s;
         }
         .page-controls .page-btn.active {
-            background: #1976d2;
+            background: #1e3a5f;
             color: white;
         }
+        .page-controls .page-btn:hover:not(.active) {
+            background: #dce3ee;
+        }
+
+        /* Footer */
         footer {
             text-align: center;
             font-size: 0.7rem;
-            color: #6683a3;
-            padding: 1rem;
+            color: #5b6f87;
+            padding: 1.2rem;
             background: #fafcff;
-            border-top: 1px solid #e9edf2;
+            border-top: 1px solid #e9edf4;
         }
-        /* Estilo para el botón de edición */
-        .edit-control-btn {
-            background: none;
+
+        /* Modal */
+        .modal-content {
+            border-radius: 28px;
             border: none;
-            color: #1976d2;
-            cursor: pointer;
-            font-size: 0.8rem;
-            margin-left: 6px;
-            padding: 0 4px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
         }
-        .edit-control-btn:hover {
-            color: #0a2e4d;
+        .modal-header-azul {
+            background: #122b44;
+            color: white;
+            border-radius: 28px 28px 0 0;
+            padding: 1.2rem 1.8rem;
+            border-bottom: none;
         }
+        .modal-header-azul .modal-title {
+            font-weight: 700;
+            letter-spacing: -0.2px;
+        }
+        .modal-header-azul .btn-close {
+            filter: brightness(0) invert(1);
+        }
+        .modal-body {
+            padding: 1.8rem;
+        }
+        .modal-footer {
+            border-top: 1px solid #e9edf4;
+            padding: 1rem 1.8rem;
+        }
+        .modal-footer .btn {
+            border-radius: 40px;
+            padding: 8px 24px;
+            font-weight: 600;
+        }
+        .modal-footer .btn-primary {
+            background: #1e3a5f;
+            border: none;
+        }
+        .modal-footer .btn-primary:hover {
+            background: #0f2a47;
+        }
+        .modal-footer .btn-secondary {
+            background: #eef2f8;
+            border: none;
+            color: #1e293b;
+        }
+
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
-            body { padding: 12px; }
-            .filters-bar { flex-direction: column; align-items: stretch; }
-            .kpi-grid { flex-direction: column; }
+            body {
+                padding: 12px;
+            }
+            .dashboard-header {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+                padding: 1rem;
+            }
+            .user-info h2 {
+                font-size: 1.3rem;
+            }
+            .btn-logout {
+                align-self: center;
+            }
+            .kpi-grid {
+                flex-direction: column;
+                padding: 1rem;
+                gap: 0.8rem;
+            }
+            .kpi-card {
+                flex: 1 1 auto;
+                min-width: unset;
+            }
+            .filters-bar {
+                padding: 1rem;
+            }
+            /* Mostrar botón toggle, ocultar contenedor por defecto */
+            .btn-filtros-toggle {
+                display: inline-block;
+            }
+            #filtrosContainer {
+                display: none;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.8rem;
+                width: 100%;
+            }
+            #filtrosContainer.visible {
+                display: flex;
+            }
+            .filter-group {
+                min-width: unset;
+                flex: 1 1 auto;
+            }
+            .botones-filtros {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .botones-filtros .filter-group {
+                flex: 0 0 auto;
+            }
+            .table-wrapper {
+                max-height: 70vh;
+            }
+            .table {
+                font-size: 0.7rem;
+                min-width: 700px;
+            }
+            .table thead th {
+                font-size: 0.6rem;
+                padding: 8px 6px;
+            }
+            .table tbody td {
+                padding: 8px 6px;
+            }
+            .pagination-modern {
+                flex-direction: column;
+                align-items: center;
+                padding: 1rem;
+                gap: 0.5rem;
+            }
+            .page-controls {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .login-card {
+                padding: 2rem 1.5rem;
+                margin: 0 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-header {
+                padding: 0.8rem;
+            }
+            .user-info h2 {
+                font-size: 1.1rem;
+            }
+            .btn-logout {
+                font-size: 0.8rem;
+                padding: 6px 16px;
+            }
+            .kpi-grid {
+                padding: 0.8rem;
+            }
+            .kpi-card {
+                padding: 0.8rem;
+            }
+            .kpi-card .kpi-value {
+                font-size: 1.3rem;
+            }
+            .filters-bar {
+                padding: 0.8rem;
+            }
+            .table {
+                font-size: 0.6rem;
+                min-width: 500px;
+            }
+            .table thead th {
+                font-size: 0.5rem;
+                padding: 6px 4px;
+            }
+            .table tbody td {
+                padding: 6px 4px;
+            }
+            .badge-timer {
+                font-size: 0.6rem;
+                padding: 2px 6px;
+            }
+            .estado-badge {
+                font-size: 0.6rem;
+                padding: 2px 8px;
+            }
+            .pagination-modern {
+                padding: 0.8rem;
+            }
+            .login-card {
+                padding: 1.5rem 1rem;
+            }
+            .botones-filtros {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .botones-filtros .filter-group {
+                flex: 1 1 auto;
+                width: 100%;
+            }
+            .botones-filtros .filter-group button {
+                width: 100%;
+            }
+        }
+
+        /* Escritorio: siempre visible */
+        @media (min-width: 769px) {
+            #filtrosContainer {
+                display: flex !important;
+            }
+            .btn-filtros-toggle {
+                display: none !important;
+            }
         }
     </style>
 </head>
@@ -323,18 +628,13 @@
 <!-- VISTA LOGIN -->
 <div id="loginView" class="login-wrapper">
     <div class="login-card">
-        <div class="icon">
-            <i class="bi bi-briefcase-fill"></i>
-        </div>
-        <h3>Portal de Consulta de Tareas</h3>
-        <p class="text-muted">Acceso restringido a empleados</p>
+        <h3>Causas Asignadas a Empleados</h3>
+        <p>Acceso restringido por empleados</p>
         <select id="userSelect" class="form-select mb-3">
             <option value="">-- Seleccionar profesional --</option>
         </select>
         <input type="password" id="passwordInput" class="form-control mb-4" placeholder="Contraseña" autocomplete="off">
-        <button class="btn btn-primary" onclick="iniciarSesion()">
-            <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar al Panel
-        </button>
+        <button class="btn btn-primary" onclick="iniciarSesion()">Ingresar al Panel</button>
     </div>
 </div>
 
@@ -343,51 +643,64 @@
     <div class="dashboard-container">
         <div class="dashboard-header">
             <div class="user-info">
-                <h2><i class="bi bi-person-badge me-2"></i>Mis Tareas Asignadas</h2>
-                <p><i class="bi bi-shield-check"></i> Usuario: <strong id="lblUsuarioActivo"></strong> · Edición permitida solo en fecha de control</p>
+                <h2>Mis Causas Asignadas</h2>
+                <p>Usuario: <strong id="lblUsuarioActivo"></strong> · Edición permitida solo en fecha de control</p>
             </div>
-            <button class="btn-logout" onclick="cerrarSesion()"><i class="bi bi-power"></i> Cerrar sesión</button>
+            <button class="btn-logout" onclick="cerrarSesion()">Cerrar sesión</button>
         </div>
 
         <!-- KPIs -->
         <div class="kpi-grid" id="kpiContainer">
-            <div class="kpi-card"><div class="kpi-label"><i class="bi bi-list-check me-1"></i>Total asignadas</div><div class="kpi-value" id="kpiTotal">0</div></div>
-            <div class="kpi-card warning"><div class="kpi-label"><i class="bi bi-hourglass-split"></i>Pendientes (Asignado)</div><div class="kpi-value" id="kpiPendientes">0</div></div>
-            <div class="kpi-card"><div class="kpi-label"><i class="bi bi-arrow-repeat"></i>En control</div><div class="kpi-value" id="kpiControl">0</div></div>
-            <div class="kpi-card"><div class="kpi-label"><i class="bi bi-check2-circle"></i>Firmadas</div><div class="kpi-value" id="kpiFirmadas">0</div></div>
-            <div class="kpi-card danger"><div class="kpi-label"><i class="bi bi-exclamation-triangle-fill"></i>Excedidas >48h</div><div class="kpi-value" id="kpiExcedidas">0</div></div>
+            <div class="kpi-card"><div class="kpi-label">Total asignadas</div><div class="kpi-value" id="kpiTotal">0</div></div>
+            <div class="kpi-card warning"><div class="kpi-label">Pendientes (Asignado)</div><div class="kpi-value" id="kpiPendientes">0</div></div>
+            <div class="kpi-card"><div class="kpi-label">En control</div><div class="kpi-value" id="kpiControl">0</div></div>
+            <div class="kpi-card"><div class="kpi-label">Firmadas</div><div class="kpi-value" id="kpiFirmadas">0</div></div>
+            <div class="kpi-card danger"><div class="kpi-label">Excedidas >48h</div><div class="kpi-value" id="kpiExcedidas">0</div></div>
         </div>
 
-        <!-- Filtros -->
-        <div class="filters-bar">
-            <div class="filter-group" style="flex:2;">
-                <label><i class="bi bi-search"></i> Buscar expediente</label>
-                <input type="text" id="searchInput" placeholder="Número / palabra clave" autocomplete="off">
-            </div>
-            <div class="filter-group">
-                <label><i class="bi bi-folder-symlink"></i> Tipo proceso</label>
-                <select id="filterTipoProceso">
-                    <option value="">Todos</option>
-                    <option value="Familia">Familia</option><option value="Violencia familiar">Violencia familiar</option>
-                    <option value="Civil">Civil</option><option value="Laboral">Laboral</option>
-                    <option value="Administrativo">Administrativo</option><option value="Paz">Paz</option><option value="Penal">Penal</option>
-                    <option value="Sin Definir">Sin Definir</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label><i class="bi bi-kanban"></i> Estado</label>
-                <select id="filterEstado">
-                    <option value="">Todos</option>
-                    <option value="Asignado">Asignado (Pendiente)</option>
-                    <option value="En Control">En Control</option>
-                    <option value="Firmado Defensor">Firmado</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <button class="btn-clean" onclick="resetFiltros()"><i class="bi bi-eraser"></i> Limpiar</button>
-            </div>
-            <div class="filter-group ms-auto">
-                <button class="btn-print" onclick="imprimirReporte()"><i class="bi bi-printer"></i> Imprimir reporte</button>
+        <!-- FILTROS CON TOGGLE -->
+        <div class="filters-bar" id="filtersSection">
+            <button class="btn-filtros-toggle" id="btnToggleFiltros" onclick="toggleFiltros()">Filtros</button>
+            <div id="filtrosContainer">
+                <div class="filter-group" style="flex:2;">
+                    <label>Buscar expediente</label>
+                    <input type="text" id="searchInput" placeholder="Número / palabra clave" autocomplete="off" oninput="aplicarFiltros()">
+                </div>
+                <div class="filter-group">
+                    <label>Tipo proceso</label>
+                    <select id="filterTipoProceso" onchange="aplicarFiltros()">
+                        <option value="">Todos</option>
+                        <option value="Familia">Familia</option>
+                        <option value="Violencia familiar">Violencia familiar</option>
+                        <option value="Civil">Civil</option>
+                        <option value="Laboral">Laboral</option>
+                        <option value="Administrativo">Administrativo</option>
+                        <option value="Paz">Paz</option>
+                        <option value="Penal">Penal</option>
+                        <option value="Sin Definir">Sin Definir</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Estado</label>
+                    <select id="filterEstado" onchange="aplicarFiltros()">
+                        <option value="">Todos</option>
+                        <option value="Asignado">Asignado (Pendiente)</option>
+                        <option value="En Control">En Control</option>
+                        <option value="Firmado Defensor">Firmado</option>
+                    </select>
+                </div>
+                <!-- Botones de acción en una línea -->
+                <div class="botones-filtros">
+                    <div class="filter-group">
+                        <button class="btn-modern" onclick="aplicarFiltros()">Filtrar</button>
+                    </div>
+                    <div class="filter-group">
+                        <button class="btn-modern" onclick="resetFiltros()">Limpiar</button>
+                    </div>
+                    <div class="filter-group">
+                        <button class="btn-modern btn-modern-primary" onclick="imprimirReporte()">Imprimir</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -400,9 +713,9 @@
                         <th>Expediente</th>
                         <th>Tipo Proceso</th>
                         <th>F. Asignación</th>
-                        <th>⏱️ Tiempo → Control</th>
+                        <th>Tiempo → Control</th>
                         <th>F. Control</th>
-                        <th>⏱️ Tiempo → Firma</th>
+                        <th>Tiempo → Firma</th>
                         <th>F. Firma</th>
                         <th>Estado</th>
                     </tr>
@@ -419,7 +732,7 @@
             <div class="page-controls" id="paginacionBotones"></div>
         </div>
         <footer>
-            <i class="bi bi-clock-history"></i> Cronómetros en tiempo real · Alertas visuales >48h · ✏️ Solo se puede editar la fecha de control
+            Cronómetros en tiempo real · Alertas visuales >48h · Solo se puede editar la fecha de control
         </footer>
     </div>
 </div>
@@ -428,7 +741,7 @@
 <div class="modal fade" id="modalEditarControl" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
-            <div class="modal-header modal-header-azul" style="background: linear-gradient(135deg, #0b3b5f, #0a2a44); color: white;">
+            <div class="modal-header modal-header-azul">
                 <h5 class="modal-title">Editar Fecha de Pase a Control</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -456,7 +769,7 @@
         "Palacios Ana Gabriela", "Ortega Lucia Noemi", "Ramos Marcelo Gustavo",
         "Riveros Patricia Soledad", "Sosa Rita Cecilia"
     ];
-    
+
     // Configuración Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyDRG0j0G5j9Q64VCMf6_cuhAGI3nxWFfyM",
@@ -469,7 +782,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const tareasCol = db.collection('tareas_expedientes');
-    
+
     // Variables globales
     let empleadoActual = "";
     let expedientesRaw = [];
@@ -479,7 +792,7 @@
     let unsubscribeSnapshot = null;
     let cronometroInterval = null;
     const LIMITE_MS = 48 * 60 * 60 * 1000;
-    
+
     // ---------- Funciones auxiliares ----------
     function formatFechaTable(fechaISO) {
         if (!fechaISO) return "—";
@@ -487,14 +800,14 @@
         if(partes.length===3) return `${partes[2]}/${partes[1]}/${partes[0]}`;
         return fechaISO;
     }
-    
+
     function formatFechaInput(fechaISO) {
         if (!fechaISO) return "";
         const partes = fechaISO.split('-');
         if(partes.length===3) return fechaISO;
         return "";
     }
-    
+
     function getTiempoAsignacionControl(exp) {
         if (!exp.fechaAsignacion) return null;
         const start = new Date(exp.fechaAsignacion);
@@ -503,7 +816,7 @@
         const diff = end - start;
         return diff > 0 ? diff : 0;
     }
-    
+
     function getTiempoControlFirma(exp) {
         if (!exp.fechaPaseControl) return null;
         const start = new Date(exp.fechaPaseControl);
@@ -512,7 +825,7 @@
         const diff = end - start;
         return diff > 0 ? diff : 0;
     }
-    
+
     function formatearTiempoHuman(ms) {
         if (ms === null || ms === undefined) return "—";
         const seg = Math.floor(ms / 1000);
@@ -523,21 +836,21 @@
         if (horas > 0) return `${horas}h ${minutos}m`;
         return `${minutos}m`;
     }
-    
+
     function getTimerHtml(ms) {
         if (ms === null) return '<span class="badge-timer">—</span>';
         const texto = formatearTiempoHuman(ms);
         const excedido = ms > LIMITE_MS;
         return `<span class="badge-timer ${excedido ? 'timer-excedido' : ''}">${texto} ${excedido ? '⚠️' : ''}</span>`;
     }
-    
+
     function calcularEstado(exp) {
         if (exp.fechaFirmaDefensor) return "Firmado Defensor";
         if (exp.fechaPaseControl) return "En Control";
         if (exp.fechaAsignacion || (exp.usuarioAsignado && exp.usuarioAsignado !== 'Sin Asignar')) return "Asignado";
         return "Sin Asignar";
     }
-    
+
     function contarExcedidos(lista) {
         let count = 0;
         lista.forEach(exp => {
@@ -547,56 +860,52 @@
         });
         return count;
     }
-    
-    // Renderizado de la tabla con botón de edición en F. Control
+
+    // Renderizado de la tabla
     function renderizarTabla() {
         const tbody = document.getElementById('tablaBody');
         if (!expedientesFiltrados.length) {
-            tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-5"><i class="bi bi-inbox"></i> No hay tareas asignadas con los filtros actuales.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-5">No hay tareas asignadas con los filtros actuales.</td></tr>';
             document.getElementById('infoPaginacion').innerText = `Mostrando 0 de 0`;
             document.getElementById('paginacionBotones').innerHTML = '';
             return;
         }
-        
+
         const totalPaginas = Math.ceil(expedientesFiltrados.length / POR_PAGINA);
         if (paginaActual > totalPaginas) paginaActual = totalPaginas;
         const inicio = (paginaActual - 1) * POR_PAGINA;
         const paginaData = expedientesFiltrados.slice(inicio, inicio + POR_PAGINA);
-        
+
         tbody.innerHTML = "";
         paginaData.forEach(exp => {
             const estadoActual = calcularEstado(exp);
             let badgeEstado = '';
-            if (estadoActual === 'Asignado') badgeEstado = '<span class="estado-badge estado-asignado">📌 Asignado</span>';
-            else if (estadoActual === 'En Control') badgeEstado = '<span class="estado-badge estado-control">🔄 En Control</span>';
-            else if (estadoActual === 'Firmado Defensor') badgeEstado = '<span class="estado-badge estado-firmado">✅ Firmado</span>';
-            else badgeEstado = '<span class="estado-badge">⚪ Sin Asignar</span>';
-            
+            if (estadoActual === 'Asignado') badgeEstado = '<span class="estado-badge estado-asignado">Asignado</span>';
+            else if (estadoActual === 'En Control') badgeEstado = '<span class="estado-badge estado-control">En Control</span>';
+            else if (estadoActual === 'Firmado Defensor') badgeEstado = '<span class="estado-badge estado-firmado">Firmado</span>';
+            else badgeEstado = '<span class="estado-badge">Sin Asignar</span>';
+
             const tiempoAC = getTiempoAsignacionControl(exp);
             const tiempoCF = getTiempoControlFirma(exp);
             const fechaControlFormateada = formatFechaTable(exp.fechaPaseControl);
-            
+
             const row = tbody.insertRow();
-            // Columna F. Control: mostrar fecha y botón editar
-            const controlCellContent = `
-                ${fechaControlFormateada}
-                <button class="edit-control-btn" onclick="abrirEdicionControl('${exp.id}', '${exp.fechaPaseControl || ''}')" title="Editar fecha de control">
-                    <i class="bi bi-pencil-square"></i>
-                </button>
-            `;
             row.innerHTML = `
                 <td>${exp.fechaStr || '—'}</td>
-                <td><span class="expediente-link" title="Ver información del expediente (solo lectura)" onclick="verDetalle('${exp.id}')">${exp.expediente || 'N/D'}</span></td>
+                <td><span class="expediente-link" onclick="verDetalle('${exp.id}')">${exp.expediente || 'N/D'}</span></td>
                 <td>${exp.tipoProceso || 'Sin Definir'}</td>
                 <td>${formatFechaTable(exp.fechaAsignacion)}</td>
                 <td class="timer-ac" data-id="${exp.id}">${getTimerHtml(tiempoAC)}</td>
-                <td class="control-cell" data-id="${exp.id}">${controlCellContent}</td>
+                <td class="control-cell" data-id="${exp.id}">
+                    ${fechaControlFormateada}
+                    <button class="edit-control-btn" onclick="abrirEdicionControl('${exp.id}', '${exp.fechaPaseControl || ''}')">Editar</button>
+                </td>
                 <td class="timer-cf" data-id="${exp.id}">${getTimerHtml(tiempoCF)}</td>
                 <td>${formatFechaTable(exp.fechaFirmaDefensor)}</td>
                 <td>${badgeEstado}</td>
             `;
         });
-        
+
         document.getElementById('infoPaginacion').innerText = `Mostrando ${inicio+1} - ${Math.min(inicio+POR_PAGINA, expedientesFiltrados.length)} de ${expedientesFiltrados.length}`;
         let pagHtml = '';
         for(let i=1; i<=totalPaginas; i++) {
@@ -614,8 +923,8 @@
         actualizarCronometrosVisibles();
         actualizarKPIs();
     }
-    
-    // Actualización de cronómetros en vivo
+
+    // Actualización en vivo de cronómetros y fecha de control
     function actualizarCronometrosVisibles() {
         document.querySelectorAll('.timer-ac').forEach(cell => {
             const id = cell.getAttribute('data-id');
@@ -633,19 +942,17 @@
                 cell.innerHTML = getTimerHtml(ms);
             }
         });
-        // También actualizar el texto de la fecha de control (por si cambió)
         document.querySelectorAll('.control-cell').forEach(cell => {
             const id = cell.getAttribute('data-id');
             const exp = expedientesRaw.find(e => e.id === id);
             if (exp) {
                 const fechaFormateada = formatFechaTable(exp.fechaPaseControl);
-                const botonHtml = `<button class="edit-control-btn" onclick="abrirEdicionControl('${exp.id}', '${exp.fechaPaseControl || ''}')" title="Editar fecha de control"><i class="bi bi-pencil-square"></i></button>`;
-                cell.innerHTML = `${fechaFormateada} ${botonHtml}`;
+                cell.innerHTML = `${fechaFormateada} <button class="edit-control-btn" onclick="abrirEdicionControl('${exp.id}', '${exp.fechaPaseControl || ''}')">Editar</button>`;
             }
         });
         actualizarKPIs();
     }
-    
+
     function actualizarKPIs() {
         const total = expedientesRaw.length;
         const pendientes = expedientesRaw.filter(e => calcularEstado(e) === 'Asignado').length;
@@ -658,12 +965,12 @@
         document.getElementById('kpiFirmadas').innerText = firmadas;
         document.getElementById('kpiExcedidas').innerText = excedidas;
     }
-    
+
     function aplicarFiltros() {
         const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
         const tipo = document.getElementById('filterTipoProceso').value;
         const estadoFiltro = document.getElementById('filterEstado').value;
-        
+
         expedientesFiltrados = expedientesRaw.filter(exp => {
             if (searchTerm && !exp.expediente.toLowerCase().includes(searchTerm)) return false;
             if (tipo && (exp.tipoProceso || 'Sin Definir') !== tipo) return false;
@@ -672,55 +979,57 @@
         });
         paginaActual = 1;
         renderizarTabla();
+        // En móvil, cerrar panel de filtros después de aplicar
+        cerrarFiltrosEnMovil();
     }
-    
+
     function resetFiltros() {
         document.getElementById('searchInput').value = '';
         document.getElementById('filterTipoProceso').value = '';
         document.getElementById('filterEstado').value = '';
         aplicarFiltros();
+        // Cerrar panel en móvil
+        cerrarFiltrosEnMovil();
     }
-    
+
     function verDetalle(id) {
         const exp = expedientesRaw.find(e => e.id === id);
         if(exp) {
             const estado = calcularEstado(exp);
-            alert(`📄 EXPEDIENTE (Solo consulta)\n\n🔹 Número: ${exp.expediente}\n📅 Fecha entrada: ${exp.fechaStr || '—'}\n⚖️ Tipo proceso: ${exp.tipoProceso || 'Sin Definir'}\n👤 Asignado a: ${exp.usuarioAsignado}\n📌 Estado actual: ${estado}\n\n📆 Asignación: ${formatFechaTable(exp.fechaAsignacion)}\n📆 Control: ${formatFechaTable(exp.fechaPaseControl)}\n📆 Firma: ${formatFechaTable(exp.fechaFirmaDefensor)}`);
+            alert(`EXPEDIENTE (Solo consulta)\n\nNúmero: ${exp.expediente}\nFecha entrada: ${exp.fechaStr || '—'}\nTipo proceso: ${exp.tipoProceso || 'Sin Definir'}\nAsignado a: ${exp.usuarioAsignado}\nEstado actual: ${estado}\n\nAsignación: ${formatFechaTable(exp.fechaAsignacion)}\nControl: ${formatFechaTable(exp.fechaPaseControl)}\nFirma: ${formatFechaTable(exp.fechaFirmaDefensor)}`);
         } else {
             alert("No se encontró información del expediente.");
         }
     }
-    
-    // Funciones para editar fecha de control
+
+    // Edición de fecha de control
     function abrirEdicionControl(id, fechaActual) {
         document.getElementById('editIdExpediente').value = id;
         document.getElementById('editFechaControl').value = formatFechaInput(fechaActual);
         new bootstrap.Modal(document.getElementById('modalEditarControl')).show();
     }
-    
+
     async function guardarFechaControl() {
         const id = document.getElementById('editIdExpediente').value;
-        const nuevaFecha = document.getElementById('editFechaControl').value; // formato YYYY-MM-DD o vacío
-        const statusDiv = document.getElementById('status'); // aunque no existe en este HTML, lo creamos dinámicamente o usamos alerta
+        const nuevaFecha = document.getElementById('editFechaControl').value;
         try {
             await tareasCol.doc(id).update({
                 fechaPaseControl: nuevaFecha || null
             });
             bootstrap.Modal.getInstance(document.getElementById('modalEditarControl')).hide();
-            // Mostrar pequeño mensaje de éxito
-            const toastMsg = document.createElement('div');
-            toastMsg.className = 'alert alert-success position-fixed bottom-0 end-0 m-3';
-            toastMsg.style.zIndex = '9999';
-            toastMsg.innerText = 'Fecha de control actualizada correctamente';
-            document.body.appendChild(toastMsg);
-            setTimeout(() => toastMsg.remove(), 2000);
-            // No es necesario recargar manualmente, el snapshot actualizará los datos
+            // Toast simple
+            const toast = document.createElement('div');
+            toast.className = 'alert alert-success position-fixed bottom-0 end-0 m-3';
+            toast.style.zIndex = '9999';
+            toast.innerText = 'Fecha de control actualizada correctamente';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
         } catch(e) {
             alert("Error al guardar: " + e.message);
         }
     }
-    
-    // Escucha en tiempo real desde Firestore
+
+    // Escucha en tiempo real
     function iniciarEscucha() {
         if (unsubscribeSnapshot) unsubscribeSnapshot();
         unsubscribeSnapshot = tareasCol.where("usuarioAsignado", "==", empleadoActual).onSnapshot(snapshot => {
@@ -744,8 +1053,32 @@
             aplicarFiltros();
         });
     }
-    
-    // ---------- Login con validación y soporte Enter ----------
+
+    // ---------- TOGGLE FILTROS (móvil) ----------
+    function toggleFiltros() {
+        const container = document.getElementById('filtrosContainer');
+        const btn = document.getElementById('btnToggleFiltros');
+        if (container.classList.contains('visible')) {
+            container.classList.remove('visible');
+            btn.textContent = 'Filtros';
+        } else {
+            container.classList.add('visible');
+            btn.textContent = 'Cerrar filtros';
+        }
+    }
+
+    function cerrarFiltrosEnMovil() {
+        if (window.innerWidth <= 768) {
+            const container = document.getElementById('filtrosContainer');
+            const btn = document.getElementById('btnToggleFiltros');
+            if (container.classList.contains('visible')) {
+                container.classList.remove('visible');
+                btn.textContent = 'Filtros';
+            }
+        }
+    }
+
+    // Login y logout
     function iniciarSesion() {
         const select = document.getElementById('userSelect');
         const pass = document.getElementById('passwordInput').value;
@@ -759,25 +1092,25 @@
             alert("Contraseña incorrecta. Acceso denegado.");
             return;
         }
-        
+
         empleadoActual = empSeleccionado;
         document.getElementById('lblUsuarioActivo').innerText = empleadoActual;
         document.getElementById('loginView').style.display = 'none';
         document.getElementById('dashboardView').style.display = 'block';
-        
+
         iniciarEscucha();
         if (cronometroInterval) clearInterval(cronometroInterval);
         cronometroInterval = setInterval(() => {
             if (expedientesRaw.length) actualizarCronometrosVisibles();
         }, 1000);
     }
-    
+
     function cerrarSesion() {
         if (unsubscribeSnapshot) unsubscribeSnapshot();
         if (cronometroInterval) clearInterval(cronometroInterval);
         location.reload();
     }
-    
+
     function imprimirReporte() {
         if (!expedientesFiltrados.length) {
             alert("No hay datos para imprimir en la vista actual.");
@@ -808,8 +1141,8 @@
         win.document.close();
         win.print();
     }
-    
-    // Cargar empleados y agregar evento Enter
+
+    // Cargar empleados y evento Enter
     window.addEventListener('DOMContentLoaded', () => {
         const selectEmp = document.getElementById('userSelect');
         LISTA_EMPLEADOS.forEach(emp => {

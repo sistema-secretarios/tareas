@@ -3,103 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Panel de Asignación | Control y Gestión</title>
-    <!-- Bootstrap 5 + Icons + Google Fonts -->
+    <title>Pase y Asignación</title>
+    <!-- Bootstrap 5 + Google Fonts (Inter) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <style>
+        /* Reset y base */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
         body {
-            font-family: 'Inter', sans-serif;
-            background: #eef2f9;
-            padding: 24px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f7fc;
+            padding: 20px;
             min-height: 100vh;
+            color: #1e293b;
+            line-height: 1.5;
         }
-        /* Pantalla de login - fondo igual al de tareas (fondo limpio #eef2f9) */
+        /* Login */
         .login-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #eef2f9;  /* igual al fondo de la aplicación tareas */
+            background: #f5f7fc;
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 2000;
-            transition: all 0.3s ease;
+            transition: opacity 0.25s ease;
         }
         .login-card {
-            background: white;
-            border-radius: 32px;
-            padding: 2rem;
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 2.5rem 2rem;
             width: 100%;
-            max-width: 420px;
-            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.15);
+            max-width: 400px;
+            box-shadow: 0 20px 40px -12px rgba(0, 20, 40, 0.20);
+            border: 1px solid #e9edf4;
             text-align: center;
-            border: 1px solid rgba(25,118,210,0.2);
         }
         .login-card h2 {
-            color: #0a2a44;
             font-weight: 700;
-            margin-bottom: 1rem;
-        }
-        .login-card .icon {
-            font-size: 3rem;
-            color: #1976d2;
+            font-size: 1.8rem;
+            color: #0b2b44;
             margin-bottom: 0.5rem;
+            letter-spacing: -0.3px;
+        }
+        .login-card p {
+            color: #5b6f87;
+            font-size: 0.95rem;
+            margin-bottom: 1.8rem;
         }
         .login-card input {
             border-radius: 60px;
-            padding: 12px 20px;
-            border: 1px solid #cbdde9;
+            padding: 14px 20px;
+            border: 1px solid #d4deea;
+            background: #fafcff;
+            font-size: 1rem;
+            width: 100%;
             margin-bottom: 1.5rem;
+            transition: border 0.15s;
+        }
+        .login-card input:focus {
+            border-color: #2563eb;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
         .login-card button {
-            background: #1976d2;
+            background: #1e3a5f;
             border: none;
             border-radius: 60px;
-            padding: 12px;
-            font-weight: 700;
+            padding: 14px;
+            font-weight: 600;
+            font-size: 1rem;
+            color: white;
             width: 100%;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+        .login-card button:hover {
+            background: #0f2a47;
         }
         .error-message {
-            color: #c62828;
-            font-size: 0.8rem;
-            margin-top: -1rem;
+            color: #b91c1c;
+            font-size: 0.85rem;
+            margin-top: -0.5rem;
             margin-bottom: 1rem;
+            display: none;
         }
-        /* Dashboard principal */
+        /* Dashboard */
         .dashboard-container {
             max-width: 1600px;
             margin: 0 auto;
             background: #ffffff;
-            border-radius: 32px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            border-radius: 28px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
             overflow: hidden;
             display: none;
         }
+        /* Header */
         .dashboard-header {
-            background: linear-gradient(135deg, #0b3b5f 0%, #0a2a44 100%);
-            padding: 1.2rem 2rem;
+            background: #122b44;
+            padding: 1.2rem 1.8rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 1rem;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
         .header-title h2 {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: 700;
             margin: 0;
             color: white;
@@ -107,184 +129,231 @@
         }
         .header-title p {
             margin: 0;
-            color: #b9d9ff;
+            color: #a1c4e8;
             font-size: 0.85rem;
+            font-weight: 400;
         }
-        /* Botón cerrar sesión estilo tareas */
         .btn-logout {
-            background: rgba(255,255,255,0.12);
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255, 255, 255, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.25);
             color: white;
-            padding: 8px 20px;
+            padding: 8px 22px;
             border-radius: 40px;
             font-weight: 600;
+            font-size: 0.9rem;
             transition: 0.2s;
             cursor: pointer;
+            backdrop-filter: blur(4px);
         }
         .btn-logout:hover {
-            background: #c62828;
-            border-color: #c62828;
+            background: #b91c1c;
+            border-color: #b91c1c;
             color: white;
         }
+        /* Upload */
         .upload-area-modern {
-            background: #f8fafd;
+            background: #f8faff;
             padding: 1.5rem 2rem;
-            border-bottom: 1px solid #e2edf7;
-            text-align: center;
+            border-bottom: 1px solid #e9edf4;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1rem;
         }
-        .upload-area-modern input {
+        .upload-area-modern input[type="file"] {
             background: white;
-            border: 1px solid #cbdde9;
+            border: 1px solid #d4deea;
             border-radius: 60px;
-            padding: 10px 20px;
-            font-size: 0.85rem;
+            padding: 10px 18px;
+            font-size: 0.9rem;
+            flex: 1 1 200px;
         }
         .status-modern {
-            margin-top: 10px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 500;
-            color: #0a5b8c;
+            color: #1e4a6f;
+            background: #eaf0f8;
+            padding: 6px 16px;
+            border-radius: 40px;
+            white-space: nowrap;
         }
+
+        /* === FILTROS MODIFICADOS === */
         .filters-modern {
             padding: 1.2rem 2rem;
             background: white;
-            border-bottom: 1px solid #e9edf2;
+            border-bottom: 1px solid #e9edf4;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        /* Botón toggle (solo móvil) */
+        .btn-filtros-toggle {
+            display: none; /* oculto por defecto (escritorio) */
+            background: #eef2f8;
+            border: none;
+            border-radius: 40px;
+            padding: 8px 24px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #1e293b;
+            align-self: flex-start;
+        }
+        .btn-filtros-toggle:hover {
+            background: #dce3ee;
+        }
+
+        /* Contenedor de todos los filtros + botones */
+        #filtrosContainer {
             display: flex;
             flex-wrap: wrap;
             align-items: flex-end;
-            gap: 1rem;
+            gap: 1rem 1.5rem;
         }
         .filter-group {
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            min-width: 130px;
+            gap: 4px;
+            min-width: 120px;
+            flex: 1 0 auto;
         }
         .filter-group label {
             font-size: 0.7rem;
             font-weight: 700;
-            color: #2c5a7a;
-            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: #3a5a7a;
         }
-        .filter-group select, .filter-group input {
-            background: #f9fcff;
-            border: 1px solid #cbdde9;
+        .filter-group select,
+        .filter-group input {
+            background: #fafcff;
+            border: 1px solid #d4deea;
             border-radius: 14px;
             padding: 8px 14px;
             font-size: 0.85rem;
             transition: 0.15s;
+            width: 100%;
         }
-        .filter-group select:focus, .filter-group input:focus {
-            border-color: #1976d2;
-            box-shadow: 0 0 0 3px rgba(25,118,210,0.2);
+        .filter-group select:focus,
+        .filter-group input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
             outline: none;
         }
         .btn-modern {
-            background: #eef2fa;
+            background: #eef2f8;
             border: none;
             border-radius: 40px;
             padding: 8px 20px;
             font-weight: 600;
             font-size: 0.8rem;
             transition: 0.2s;
+            cursor: pointer;
+            color: #1e293b;
         }
         .btn-modern-primary {
-            background: #1976d2;
+            background: #1e3a5f;
             color: white;
         }
         .btn-modern-primary:hover {
-            background: #0f5bab;
+            background: #0f2a47;
         }
         .btn-modern:hover {
-            background: #dee5ef;
+            background: #dce3ee;
         }
+
+        /* Grupo de botones de acción (Filtrar, Limpiar, Imprimir) en una línea */
+        .botones-filtros {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 0 0 auto;
+        }
+        .botones-filtros .filter-group {
+            flex: 0 0 auto;
+            min-width: unset;
+        }
+
         /* KPI cards */
         .info-cards {
             display: flex;
             flex-wrap: wrap;
             gap: 1rem;
             padding: 1.5rem 2rem;
-            background: #f8fafd;
-            border-bottom: 1px solid #e2edf7;
+            background: #f8faff;
+            border-bottom: 1px solid #e9edf4;
         }
         .kpi-card-info {
             background: white;
-            border-radius: 24px;
-            padding: 1rem 1.5rem;
-            flex: 1;
-            min-width: 160px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-            border: 1px solid #e9f0f5;
+            border-radius: 20px;
+            padding: 1rem 1.2rem;
+            flex: 1 1 140px;
+            min-width: 130px;
+            border: 1px solid #e9edf4;
             text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
         }
         .kpi-card-info .title {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
-            color: #4a6f8f;
-            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+            color: #4a6a8a;
+            margin-bottom: 6px;
         }
         .kpi-card-info .value {
             font-size: 1.2rem;
-            font-weight: 800;
-            color: #0a2e4d;
+            font-weight: 700;
+            color: #0b2b44;
         }
         .kpi-card-info .value-small {
-            font-size: 0.9rem;
-            font-weight: 600;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #3a5a7a;
         }
         .kpi-card-info .value.equality-green {
-            color: #2e7d32;
-            background: #e8f5e9;
+            color: #0f6e3f;
+            background: #e6f4ea;
             display: inline-block;
-            padding: 6px 12px;
+            padding: 4px 14px;
             border-radius: 40px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
         .kpi-card-info .value.equality-red {
-            color: #c62828;
-            background: #ffebee;
+            color: #b91c1c;
+            background: #fde8e8;
             display: inline-block;
-            padding: 6px 12px;
+            padding: 4px 14px;
             border-radius: 40px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
-        .pagination-modern {
-            padding: 1rem 2rem;
-            background: #ffffff;
-            border-top: 1px solid #e9edf2;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
+        .kpi-card-info:last-child {
+            background: #eef5fc;
+            border-color: #c7d9ed;
         }
-        .pagination-controls button {
-            background: #f0f4f9;
-            border: none;
-            border-radius: 30px;
-            padding: 6px 12px;
-            margin: 0 4px;
-            font-weight: 600;
-        }
-        .pagination-controls button:disabled { opacity: 0.5; }
+        /* Table */
         .table-wrapper {
             overflow-x: auto;
             max-height: 65vh;
             scrollbar-width: thin;
+            padding: 0 0 0 0;
         }
         .table {
             margin: 0;
             font-size: 0.8rem;
-            min-width: 1200px;
+            min-width: 1100px;
+            width: 100%;
         }
         .table thead th {
             background: #f1f6fd;
-            color: #1a4c74;
+            color: #1a3f5f;
             font-weight: 700;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
-            letter-spacing: 0.4px;
+            letter-spacing: 0.3px;
             border-bottom: 1px solid #dce5ec;
             padding: 14px 10px;
             white-space: nowrap;
@@ -293,183 +362,441 @@
             padding: 12px 10px;
             vertical-align: middle;
             border-bottom: 1px solid #eef2f7;
-            color: #1f384f;
+            color: #1e3349;
         }
         .table tbody tr:hover {
             background-color: #f5faff;
         }
         .expediente-link {
             font-weight: 700;
-            color: #0b5e9e;
+            color: #1a5a8a;
             cursor: pointer;
             text-decoration: none;
-            border-bottom: 1px dashed #8bb9e0;
+            border-bottom: 1px dashed #92b9db;
         }
-        .estado-sin-asignar, .estado-asignado, .estado-control, .estado-firmado { font-weight: 700; }
-        .estado-sin-asignar { color: #5c6bc0; }
-        .estado-asignado { color: #e67e22; }
-        .estado-control { color: #1976d2; }
-        .estado-firmado { color: #2e7d32; }
-        .cronometro-vivo, .cronometro-excedido {
-            font-family: 'JetBrains Mono', monospace;
-            padding: 4px 8px;
+        .expediente-link:hover {
+            color: #0b3b5f;
+        }
+        .estado-sin-asignar { color: #4a5f8a; font-weight: 600; }
+        .estado-asignado { color: #b45a1c; font-weight: 600; }
+        .estado-control { color: #1a5a8a; font-weight: 600; }
+        .estado-firmado { color: #0f6e3f; font-weight: 600; }
+        .cronometro-vivo,
+        .cronometro-excedido {
+            font-family: 'Inter', monospace;
+            padding: 4px 10px;
             border-radius: 40px;
             font-weight: 600;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             display: inline-block;
             white-space: nowrap;
         }
-        .cronometro-vivo { background: #ecf3fa; color: #0a2e4d; }
-        .cronometro-excedido { background: #ffebee; color: #c62828 !important; text-decoration: underline; }
-        .motivo-rojo { color: #c62828; font-weight: bold; }
-        .modal-content { border-radius: 28px; border: none; }
-        .modal-header-azul { background: linear-gradient(135deg, #0b3b5f, #0a2a44); color: white; border-radius: 28px 28px 0 0; }
+        .cronometro-vivo {
+            background: #ecf3fa;
+            color: #1a3f5f;
+        }
+        .cronometro-excedido {
+            background: #fde8e8;
+            color: #b91c1c !important;
+            text-decoration: underline;
+        }
+        .motivo-rojo {
+            color: #b91c1c;
+            font-weight: 600;
+        }
+        /* Pagination */
+        .pagination-modern {
+            padding: 1rem 2rem;
+            background: #ffffff;
+            border-top: 1px solid #e9edf4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+        .pagination-controls button {
+            background: #f0f4f9;
+            border: none;
+            border-radius: 30px;
+            padding: 6px 16px;
+            margin: 0 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .pagination-controls button:disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+        .pagination-controls button:hover:not(:disabled) {
+            background: #dce3ee;
+        }
+        .pagination-controls span {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        /* Modal */
+        .modal-content {
+            border-radius: 28px;
+            border: none;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .modal-header-azul {
+            background: #122b44;
+            color: white;
+            border-radius: 28px 28px 0 0;
+            padding: 1.2rem 1.8rem;
+            border-bottom: none;
+        }
+        .modal-header-azul .modal-title {
+            font-weight: 700;
+            letter-spacing: -0.2px;
+        }
+        .modal-header-azul .btn-close {
+            filter: brightness(0) invert(1);
+        }
+        .modal-body {
+            padding: 1.8rem;
+        }
+        .modal-footer {
+            border-top: 1px solid #e9edf4;
+            padding: 1rem 1.8rem;
+        }
+        .modal-footer .btn {
+            border-radius: 40px;
+            padding: 8px 24px;
+            font-weight: 600;
+        }
+        .modal-footer .btn-primary {
+            background: #1e3a5f;
+            border: none;
+        }
+        .modal-footer .btn-primary:hover {
+            background: #0f2a47;
+        }
+        .modal-footer .btn-secondary {
+            background: #eef2f8;
+            border: none;
+            color: #1e293b;
+        }
+        /* Footer */
         footer {
             text-align: center;
             font-size: 0.7rem;
-            color: #6683a3;
-            padding: 1rem;
+            color: #5b6f87;
+            padding: 1.2rem;
             background: #fafcff;
-            border-top: 1px solid #e9edf2;
+            border-top: 1px solid #e9edf4;
         }
-        @media (max-width: 800px) {
-            body { padding: 12px; }
-            .filters-modern { flex-direction: column; align-items: stretch; }
-            .info-cards { flex-direction: column; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+            .dashboard-header {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+                padding: 1rem;
+            }
+            .header-title h2 {
+                font-size: 1.3rem;
+            }
+            .btn-logout {
+                align-self: center;
+            }
+            .upload-area-modern {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 1rem;
+            }
+            .upload-area-modern input[type="file"] {
+                width: 100%;
+            }
+            .status-modern {
+                text-align: center;
+                white-space: normal;
+            }
+            /* FILTROS: mostramos el botón toggle, ocultamos el contenedor por defecto */
+            .btn-filtros-toggle {
+                display: inline-block;
+            }
+            #filtrosContainer {
+                display: none;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.8rem;
+                width: 100%;
+            }
+            #filtrosContainer.visible {
+                display: flex;
+            }
+            .filter-group {
+                min-width: unset;
+                flex: 1 1 auto;
+            }
+            .botones-filtros {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .botones-filtros .filter-group {
+                flex: 0 0 auto;
+            }
+            .info-cards {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            .kpi-card-info {
+                flex: 1 1 auto;
+            }
+            .table-wrapper {
+                max-height: 70vh;
+            }
+            .table {
+                font-size: 0.7rem;
+                min-width: 800px;
+            }
+            .table thead th {
+                font-size: 0.6rem;
+                padding: 8px 6px;
+            }
+            .table tbody td {
+                padding: 8px 6px;
+            }
+            .pagination-modern {
+                flex-direction: column;
+                align-items: center;
+                padding: 1rem;
+                gap: 0.5rem;
+            }
+            .pagination-controls {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .modal-body {
+                padding: 1.2rem;
+            }
+            .login-card {
+                padding: 2rem 1.5rem;
+                margin: 0 1rem;
+            }
+            .filters-modern {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-header {
+                padding: 0.8rem;
+            }
+            .header-title h2 {
+                font-size: 1.1rem;
+            }
+            .btn-logout {
+                font-size: 0.8rem;
+                padding: 6px 16px;
+            }
+            .filters-modern {
+                padding: 0.8rem;
+            }
+            .info-cards {
+                padding: 0.8rem;
+            }
+            .kpi-card-info {
+                padding: 0.8rem;
+            }
+            .table {
+                font-size: 0.65rem;
+                min-width: 600px;
+            }
+            .table thead th {
+                font-size: 0.55rem;
+                padding: 6px 4px;
+            }
+            .table tbody td {
+                padding: 6px 4px;
+            }
+            .cronometro-vivo, .cronometro-excedido {
+                font-size: 0.6rem;
+                padding: 2px 6px;
+            }
+            .pagination-modern {
+                padding: 0.8rem;
+            }
+            .login-card {
+                padding: 1.5rem 1rem;
+            }
+            .botones-filtros {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .botones-filtros .filter-group {
+                flex: 1 1 auto;
+                width: 100%;
+            }
+            .botones-filtros .filter-group button {
+                width: 100%;
+            }
+        }
+        /* Escritorio: siempre visible */
+        @media (min-width: 769px) {
+            #filtrosContainer {
+                display: flex !important;
+            }
+            .btn-filtros-toggle {
+                display: none !important;
+            }
         }
     </style>
 </head>
 <body>
 
-<!-- LANDING PAGE / LOGIN (fondo tipo tareas) -->
+<!-- Login -->
 <div id="loginOverlay" class="login-overlay">
     <div class="login-card">
-        <div class="icon"><i class="bi bi-shield-lock-fill"></i></div>
-        <h2>Panel de Asignación</h2>
-        <p class="text-muted">Acceso restringido · Control de tareas</p>
+        <h2>Pase y Asignación</h2>
+        <p>Acceso restringido · Control de tareas</p>
         <input type="password" id="accessPassword" class="form-control" placeholder="Clave de acceso" autocomplete="off">
-        <div id="loginError" class="error-message" style="display: none;">Clave incorrecta</div>
-        <button class="btn btn-primary" onclick="validarAcceso()">Ingresar al Sistema</button>
+        <div id="loginError" class="error-message">Clave incorrecta</div>
+        <button class="btn" onclick="validarAcceso()">Ingresar al Sistema</button>
     </div>
 </div>
 
-<!-- DASHBOARD PRINCIPAL (con botón cerrar sesión) -->
+<!-- Dashboard -->
 <div id="mainDashboard" class="dashboard-container">
+    <!-- Header -->
     <div class="dashboard-header">
         <div class="header-title">
-            <h2><i class="bi bi-clipboard-data-fill me-2"></i>Control y Asignación de Tareas</h2>
-            <p>Gestión de expedientes, tipos de proceso, asignación y cronómetros con alerta 48h</p>
+            <h2>Control de Pase y Asignación de Tareas</h2>
+            <p>DEFENSORIA CIVIL Y COMERCIAL 6 MINISTERIO PUBLICO DE MISIONES</p>
         </div>
-        <!-- Botón cerrar sesión estilo tareas -->
-        <button class="btn-logout" onclick="cerrarSesion()"><i class="bi bi-power"></i> Cerrar sesión</button>
+        <button class="btn-logout" onclick="cerrarSesion()">Cerrar sesión</button>
     </div>
 
+    <!-- Upload -->
     <div class="upload-area-modern">
-        <input type="file" id="pdfUpload" accept=".pdf" multiple class="form-control d-inline-block w-auto">
-        <div id="status" class="status-modern">⏳ Inicializando sistemas...</div>
+        <input type="file" id="pdfUpload" accept=".pdf" multiple class="form-control d-inline-block">
+        <div id="status" class="status-modern">Inicializando sistemas...</div>
     </div>
 
+    <!-- Filters -->
     <div class="filters-modern" id="filtersSection" style="display: none;">
-        <div class="filter-group">
-            <label>Mes (Entrada)</label>
-            <select id="filterMes">
-                <option value="">Todos</option>
-                <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
-                <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
-                <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
-                <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <label>Año</label>
-            <select id="filterAnio"><option value="">Todos</option></select>
-        </div>
-        <div class="filter-group">
-            <label>Empleado Asignado</label>
-            <select id="filterEmpleado"><option value="">Todos</option></select>
-        </div>
-        <div class="filter-group">
-            <label>Tipo de Proceso</label>
-            <select id="filterTipoProceso">
-                <option value="">Todos</option>
-                <option value="Sin Definir">Sin Definir</option>
-                <option value="Familia">Familia</option>
-                <option value="Violencia familiar">Violencia familiar</option>
-                <option value="Civil">Civil</option>
-                <option value="Laboral">Laboral</option>
-                <option value="Administrativo">Administrativo</option>
-                <option value="Paz">Paz</option>
-                <option value="Penal">Penal</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <label>Estado de la Tarea</label>
-            <select id="filterEstado">
-                <option value="">Todos</option>
-                <option value="Sin Asignar">Sin Asignar</option>
-                <option value="Asignado">Asignado</option>
-                <option value="En Control">En Control</option>
-                <option value="Firmado Defensor">Firmado Defensor</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <label>Motivo No Asignación</label>
-            <select id="filterMotivoNoAsignacion">
-                <option value="">Todos</option>
-                <option value="Rechazado">Rechazado</option>
-                <option value="Devuelto">Devuelto</option>
-                <option value="Remitido">Remitido</option>
-                <option value="Abogado Particular">Abogado Particular</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <label>Texto</label>
-            <input type="text" id="filterTexto" placeholder="Buscar expediente...">
-        </div>
-        <div class="filter-group">
-            <button class="btn-modern" onclick="aplicarFiltros()">🔍 Filtrar</button>
-        </div>
-        <div class="filter-group">
-            <button class="btn-modern" onclick="resetFiltros()">🗑️ Limpiar</button>
-        </div>
-        <div class="filter-group ms-auto">
-            <button class="btn-modern btn-modern-primary" onclick="imprimirFiltrados()">🖨️ Imprimir Reporte</button>
+        <!-- Botón toggle (solo móvil) -->
+        <button class="btn-filtros-toggle" id="btnToggleFiltros" onclick="toggleFiltros()">Filtros</button>
+
+        <!-- Contenedor de todos los filtros + botones de acción -->
+        <div id="filtrosContainer">
+            <div class="filter-group">
+                <label>Mes (Entrada)</label>
+                <select id="filterMes">
+                    <option value="">Todos</option>
+                    <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+                    <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+                    <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+                    <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Año</label>
+                <select id="filterAnio"><option value="">Todos</option></select>
+            </div>
+            <div class="filter-group">
+                <label>Empleado Asignado</label>
+                <select id="filterEmpleado"><option value="">Todos</option></select>
+            </div>
+            <div class="filter-group">
+                <label>Tipo de Proceso</label>
+                <select id="filterTipoProceso">
+                    <option value="">Todos</option>
+                    <option value="Sin Definir">Sin Definir</option>
+                    <option value="Familia">Familia</option>
+                    <option value="Violencia familiar">Violencia familiar</option>
+                    <option value="Civil">Civil</option>
+                    <option value="Laboral">Laboral</option>
+                    <option value="Administrativo">Administrativo</option>
+                    <option value="Paz">Paz</option>
+                    <option value="Penal">Penal</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Estado de la Tarea</label>
+                <select id="filterEstado">
+                    <option value="">Todos</option>
+                    <option value="Sin Asignar">Sin Asignar</option>
+                    <option value="Asignado">Asignado</option>
+                    <option value="En Control">En Control</option>
+                    <option value="Firmado Defensor">Firmado Defensor</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Motivo No Asignación</label>
+                <select id="filterMotivoNoAsignacion">
+                    <option value="">Todos</option>
+                    <option value="Rechazado">Rechazado</option>
+                    <option value="Devuelto">Devuelto</option>
+                    <option value="Remitido">Remitido</option>
+                    <option value="Abogado Particular">Abogado Particular</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Texto</label>
+                <input type="text" id="filterTexto" placeholder="Buscar expediente...">
+            </div>
+
+            <!-- Botones de acción en una sola línea -->
+            <div class="botones-filtros">
+                <div class="filter-group">
+                    <button class="btn-modern" onclick="aplicarFiltros()">Filtrar</button>
+                </div>
+                <div class="filter-group">
+                    <button class="btn-modern" onclick="resetFiltros()">Limpiar</button>
+                </div>
+                <div class="filter-group">
+                    <button class="btn-modern btn-modern-primary" onclick="imprimirFiltrados()">Imprimir</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- INFO CARDS -->
+    <!-- KPI Cards -->
     <div class="info-cards" id="infoContainer" style="display: none;">
-        <div class="kpi-card-info"><div class="title">🏆 Mayor Carga</div><div class="value" id="empMayor">-</div></div>
-        <div class="kpi-card-info"><div class="title">📉 Menor Carga</div><div class="value" id="empMenor">-</div></div>
-        <div class="kpi-card-info"><div class="title">⭐ Mejor Tiempo (≤48h)</div><div class="value" id="mejorPromedio">-</div></div>
-        <div class="kpi-card-info"><div class="title">⚠️ Más Excedidos (>48h)</div><div class="value" id="masExcedidos">-</div></div>
-        <div class="kpi-card-info"><div class="title">⚖️ Equidad de Carga</div><div class="value" id="equidadCarga">-</div></div>
-        <div class="kpi-card-info" style="background: #eef5ff;">
-            <div class="title">📊 Estadísticas de Vista</div>
+        <div class="kpi-card-info"><div class="title">Mayor Carga</div><div class="value" id="empMayor">-</div></div>
+        <div class="kpi-card-info"><div class="title">Menor Carga</div><div class="value" id="empMenor">-</div></div>
+        <div class="kpi-card-info"><div class="title">Mejor Tiempo (≤48h)</div><div class="value" id="mejorPromedio">-</div></div>
+        <div class="kpi-card-info"><div class="title">Más Excedidos (>48h)</div><div class="value" id="masExcedidos">-</div></div>
+        <div class="kpi-card-info"><div class="title">Equidad de Carga</div><div class="value" id="equidadCarga">-</div></div>
+        <div class="kpi-card-info">
+            <div class="title">Estadísticas de Vista</div>
             <div class="value" id="totalGeneralCard">0</div>
             <div class="value-small">Tareas totales</div>
-            <hr style="margin: 8px 0; opacity: 0.3;">
+            <hr style="margin: 8px 0; opacity: 0.2;">
             <div class="value" id="totalFiltradosCard">0</div>
             <div class="value-small">Filtradas actualmente</div>
         </div>
     </div>
 
+    <!-- Pagination top -->
     <div class="pagination-modern" id="paginationBar" style="display: none;">
         <div>Total: <span id="totalRegistros">0</span> expedientes activos</div>
         <div class="pagination-controls">
-            <button id="btnPrev" onclick="cambiarPagina(-1)">◀ Anterior</button>
+            <button id="btnPrev" onclick="cambiarPagina(-1)">Anterior</button>
             <span>Página <span id="paginaActual">1</span> de <span id="totalPaginas">1</span></span>
-            <button id="btnNext" onclick="cambiarPagina(1)">Siguiente ▶</button>
+            <button id="btnNext" onclick="cambiarPagina(1)">Siguiente</button>
         </div>
     </div>
 
+    <!-- Table -->
     <div class="table-wrapper">
         <table class="table" id="tablaExpedientes">
             <thead>
                 <tr>
                     <th>Mov.</th><th>Fecha Entrada</th><th>Expediente</th><th>Tipo Proceso</th>
-                    <th>Empleado Asignado</th><th>F. Asignación</th><th>⏱️ Tiempo → Control</th>
-                    <th>F. Control</th><th>⏱️ Tiempo → Firma</th><th>F. Firma Defensor</th>
+                    <th>Empleado Asignado</th><th>F. Asignación</th><th>Tiempo → Control</th>
+                    <th>F. Control</th><th>Tiempo → Firma</th><th>F. Firma Defensor</th>
                     <th>Estado Actual</th><th>Motivo No Asignación</th>
                 </tr>
             </thead>
@@ -478,10 +805,11 @@
             </tbody>
         </table>
     </div>
-    <footer>🔹 Haz clic en el número de expediente para gestionar tipo de proceso y fechas.</footer>
+
+    <footer>Haz clic en el número de expediente para gestionar tipo de proceso y fechas.</footer>
 </div>
 
-<!-- Modal de gestión -->
+<!-- Modal -->
 <div class="modal fade" id="detalleCausaModal" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
@@ -492,43 +820,41 @@
             <div class="modal-body">
                 <form id="formGestionTarea">
                     <input type="hidden" id="modalIdUnico">
-                    <p><strong>📌 Expediente:</strong> <span id="modalExpedienteTexto"></span></p>
-                    <p><strong>📅 Fecha Entrada SIGED:</strong> <span id="modalFechaEntradaTexto"></span></p>
+                    <p><strong>Expediente:</strong> <span id="modalExpedienteTexto"></span></p>
+                    <p><strong>Fecha Entrada SIGED:</strong> <span id="modalFechaEntradaTexto"></span></p>
                     <hr>
-                    <div class="mb-3"><label class="form-label fw-bold">⚖️ Tipo de Proceso</label><select class="form-select" id="modalTipoProceso"><option value="Sin Definir">Sin Definir</option><option value="Familia">Familia</option><option value="Violencia familiar">Violencia familiar</option><option value="Civil">Civil</option><option value="Laboral">Laboral</option><option value="Administrativo">Administrativo</option><option value="Paz">Paz</option><option value="Penal">Penal</option></select></div>
-                    <div class="mb-3"><label class="form-label fw-bold">👤 Asignar a Empleado</label><select class="form-select" id="modalEmpleado"><option value="Sin Asignar">Sin Asignar</option></select></div>
-                    <div class="mb-3"><label class="form-label">📅 Fecha de Asignación</label><input type="date" class="form-control" id="modalFechaAsignacion"></div>
-                    <div class="mb-3"><label class="form-label">📅 Fecha Pase a Control</label><input type="date" class="form-control" id="modalFechaControl"></div>
-                    <div class="mb-3"><label class="form-label">📅 Fecha Firma Defensor</label><input type="date" class="form-control" id="modalFechaFirma"></div>
-                    <div class="mb-3"><label class="form-label">❓ Motivo de No Asignación (solo si empleado = Sin Asignar)</label><select class="form-select" id="modalMotivoNoAsignacion"><option value="">-- Sin motivo --</option><option value="Rechazado">Rechazado</option><option value="Devuelto">Devuelto</option><option value="Remitido">Remitido</option><option value="Abogado Particular">Abogado Particular</option></select></div>
+                    <div class="mb-3"><label class="form-label fw-bold">Tipo de Proceso</label><select class="form-select" id="modalTipoProceso"><option value="Sin Definir">Sin Definir</option><option value="Familia">Familia</option><option value="Violencia familiar">Violencia familiar</option><option value="Civil">Civil</option><option value="Laboral">Laboral</option><option value="Administrativo">Administrativo</option><option value="Paz">Paz</option><option value="Penal">Penal</option></select></div>
+                    <div class="mb-3"><label class="form-label fw-bold">Asignar a Empleado</label><select class="form-select" id="modalEmpleado"><option value="Sin Asignar">Sin Asignar</option></select></div>
+                    <div class="mb-3"><label class="form-label">Fecha de Asignación</label><input type="date" class="form-control" id="modalFechaAsignacion"></div>
+                    <div class="mb-3"><label class="form-label">Fecha Pase a Control</label><input type="date" class="form-control" id="modalFechaControl"></div>
+                    <div class="mb-3"><label class="form-label">Fecha Firma Defensor</label><input type="date" class="form-control" id="modalFechaFirma"></div>
+                    <div class="mb-3"><label class="form-label">Motivo de No Asignación (solo si empleado = Sin Asignar)</label><select class="form-select" id="modalMotivoNoAsignacion"><option value="">-- Sin motivo --</option><option value="Rechazado">Rechazado</option><option value="Devuelto">Devuelto</option><option value="Remitido">Remitido</option><option value="Abogado Particular">Abogado Particular</option></select></div>
                 </form>
             </div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="button" class="btn btn-primary" onclick="guardarCambiosTarea()">💾 Guardar Cambios</button></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarCambiosTarea()">Guardar Cambios</button>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    // ---------- CIERRE DE SESIÓN (botón agregado) ----------
+    // ---------- CERRAR SESIÓN ----------
     function cerrarSesion() {
-        // Ocultar dashboard, mostrar login
         document.getElementById('mainDashboard').style.display = 'none';
         document.getElementById('loginOverlay').style.display = 'flex';
-        // Detener intervalo de cronómetros
         if (intervaloCronometros) {
             clearInterval(intervaloCronometros);
             intervaloCronometros = null;
         }
-        // Limpiar datos globales
         todosExpedientes = [];
         datosFiltrados = [];
-        // Resetear input de contraseña y mensaje de error
         document.getElementById('accessPassword').value = '';
         document.getElementById('loginError').style.display = 'none';
-        // Opcional: limpiar cualquier listener duplicado del upload se reiniciará en próximo inicio de sesión
     }
 
-    // ---------- FUNCIONES PRINCIPALES ----------
+    // ---------- CONFIGURACIÓN ----------
     const LISTA_EMPLEADOS_FIJA = [
         "Bazante Nadia Romina", "Boillat Cesar Enrique", "Cardozo Maria Raquel",
         "Cedron Noelia Aurora", "Corrales Alicia Mariela", "Escobar Monica Graciela",
@@ -537,7 +863,7 @@
         "Palacios Ana Gabriela", "Ortega Lucia Noemi", "Ramos Marcelo Gustavo",
         "Riveros Patricia Soledad", "Sosa Rita Cecilia"
     ];
-    
+
     const firebaseConfigNuevo = {
         apiKey: "AIzaSyDRG0j0G5j9Q64VCMf6_cuhAGI3nxWFfyM",
         authDomain: "asignacion-expte.firebaseapp.com",
@@ -549,7 +875,7 @@
     firebase.initializeApp(firebaseConfigNuevo);
     const dbNuevo = firebase.firestore();
     const coleccionTareas = dbNuevo.collection('tareas_expedientes');
-    
+
     let todosExpedientes = [];
     let datosFiltrados = [];
     let paginaActual = 1;
@@ -557,8 +883,8 @@
     let intervaloCronometros = null;
     const LIMITE_HORAS = 48;
     const LIMITE_MS = LIMITE_HORAS * 60 * 60 * 1000;
-    
-    // Funciones auxiliares
+
+    // ---------- FUNCIONES AUXILIARES ----------
     function normalizarExpediente(texto) { if (!texto) return ''; const match = texto.match(/^([0-9]+)/); return match ? match[1] : texto.trim(); }
     function calcularEstadoTarea(exp) { if (exp.fechaFirmaDefensor) return "Firmado Defensor"; if (exp.fechaPaseControl) return "En Control"; if (exp.fechaAsignacion || (exp.usuarioAsignado && exp.usuarioAsignado !== 'Sin Asignar')) return "Asignado"; return "Sin Asignar"; }
     function parseFechaDDMMAAAA(fechaStr) { const partes = fechaStr.split('/'); if (partes.length === 3) return new Date(parseInt(partes[2],10), parseInt(partes[1],10)-1, parseInt(partes[0],10)); return null; }
@@ -568,7 +894,7 @@
     function formatearTiempoConAlerta(ms) { if (ms === null || ms === undefined) return '<span class="cronometro-vivo">—</span>'; const texto = msToLegible(ms); if (ms > LIMITE_MS) return `<span class="cronometro-excedido">${texto}</span>`; else return `<span class="cronometro-vivo">${texto}</span>`; }
     function getTiempoAsignacionControl(exp) { if (!exp.fechaAsignacion) return null; return exp.fechaPaseControl ? obtenerDiferenciaMs(exp.fechaAsignacion, exp.fechaPaseControl, false) : obtenerDiferenciaMs(exp.fechaAsignacion, null, true); }
     function getTiempoControlFirma(exp) { if (!exp.fechaPaseControl) return null; return exp.fechaFirmaDefensor ? obtenerDiferenciaMs(exp.fechaPaseControl, exp.fechaFirmaDefensor, false) : obtenerDiferenciaMs(exp.fechaPaseControl, null, true); }
-    
+
     function actualizarKPIsTiempos() {
         const empleadosTiempos = new Map();
         todosExpedientes.forEach(exp => {
@@ -588,7 +914,7 @@
         if (empleadoExcedido !== '-') document.getElementById('masExcedidos').innerHTML = `${empleadoExcedido}<br><span style="font-size:12px;">${maxExcedidos} tiempos >48h</span>`;
         else document.getElementById('masExcedidos').innerText = '-';
     }
-    
+
     function actualizarCronometrosTabla() {
         const filas = document.querySelectorAll('#tableBody tr');
         filas.forEach(fila => {
@@ -606,7 +932,7 @@
         });
         actualizarKPIsTiempos();
     }
-    
+
     async function cargarHistorialGuardado() {
         const statusDiv = document.getElementById('status');
         try {
@@ -626,24 +952,24 @@
                 document.getElementById('infoContainer').style.display = 'flex';
                 document.getElementById('paginationBar').style.display = 'flex';
                 aplicarFiltros();
-                statusDiv.innerHTML = `✅ ${todosExpedientes.length} expedientes sincronizados. Alertas de 48h activas.`;
+                statusDiv.innerHTML = `${todosExpedientes.length} expedientes sincronizados. Alertas de 48h activas.`;
                 if(intervaloCronometros) clearInterval(intervaloCronometros);
                 intervaloCronometros = setInterval(()=>{ if(document.getElementById('tableBody') && todosExpedientes.length) actualizarCronometrosTabla(); },1000);
                 actualizarKPIsTiempos();
             } else {
-                statusDiv.innerHTML = "✅ No hay expedientes. Sube un PDF del SIGED.";
-                document.getElementById('tableBody').innerHTML = '<tr><td colspan="12">Cargue un archivo PDF para procesar.</td></td>';
+                statusDiv.innerHTML = "No hay expedientes. Sube un PDF del SIGED.";
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="12">Cargue un archivo PDF para procesar.</td></tr>';
                 actualizarKPI();
             }
-        } catch(error){ statusDiv.innerHTML = "⚠️ Error crítico con Firestore."; }
+        } catch(error){ statusDiv.innerHTML = "Error crítico con Firestore."; }
     }
-    
+
     const pdfjsLib = window.pdfjsLib;
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
     async function procesarPDFs(files) {
         if(!files.length) return;
         const statusDiv = document.getElementById('status');
-        statusDiv.innerHTML = "⏳ Extrayendo registros del PDF...";
+        statusDiv.innerHTML = "Extrayendo registros del PDF...";
         const promesas = Array.from(files).map(async file => {
             const arrayBuffer = await file.arrayBuffer();
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -660,17 +986,17 @@
             const idUnico = `${numNorm}_${match[2].replace(/\//g,'-')}_${match[1].trim()}`;
             nuevosItems.push({ id: idUnico, movimiento: match[1].trim(), fechaStr: match[2].trim(), fechaDate: parseFechaDDMMAAAA(match[2].trim()), expediente: match[3].trim().replace(/\s+/g," ") });
         }
-        if(!nuevosItems.length){ statusDiv.innerHTML = "⚠️ No se detectó el formato patrón de expedientes SIGED."; return; }
-        statusDiv.innerHTML = `⏳ Procesando ${nuevosItems.length} expedientes (solo se actualizan datos inmutables)...`;
+        if(!nuevosItems.length){ statusDiv.innerHTML = "No se detectó el formato patrón de expedientes SIGED."; return; }
+        statusDiv.innerHTML = `Procesando ${nuevosItems.length} expedientes (solo se actualizan datos inmutables)...`;
         for(let i=0;i<nuevosItems.length;i+=450){
             const batch = dbNuevo.batch();
             nuevosItems.slice(i,i+450).forEach(item => { batch.set(coleccionTareas.doc(item.id), { movimiento: item.movimiento, fechaStr: item.fechaStr, fechaDate: item.fechaDate, expediente: item.expediente }, { merge: true }); });
             await batch.commit();
         }
-        statusDiv.innerHTML = `✅ Procesado. Los datos editables no se modificaron.`;
+        statusDiv.innerHTML = `Procesado. Los datos editables no se modificaron.`;
         await cargarHistorialGuardado();
     }
-    
+
     function actualizarSelectoresDinamicos() {
         const aniosSet = new Set(); todosExpedientes.forEach(exp=>{ if(exp.fechaDate) aniosSet.add(exp.fechaDate.getFullYear()); });
         const selectAnio = document.getElementById('filterAnio');
@@ -680,7 +1006,7 @@
         selectEmp.innerHTML = '<option value="">Todos</option><option value="Sin Asignar">Sin Asignar</option>';
         LISTA_EMPLEADOS_FIJA.forEach(emp => selectEmp.innerHTML += `<option value="${emp}">${emp}</option>`);
     }
-    
+
     function aplicarFiltros() {
         const mes = document.getElementById('filterMes').value, anio = document.getElementById('filterAnio').value, empleado = document.getElementById('filterEmpleado').value, tipoProceso = document.getElementById('filterTipoProceso').value, estado = document.getElementById('filterEstado').value, motivo = document.getElementById('filterMotivoNoAsignacion').value, texto = document.getElementById('filterTexto').value.trim().toLowerCase();
         datosFiltrados = todosExpedientes.filter(exp => {
@@ -694,8 +1020,10 @@
             return true;
         });
         paginaActual = 1; mostrarPagina(); actualizarKPI(); actualizarKPIsTiempos();
+        // En móvil, después de aplicar filtros, ocultamos el panel (opcional)
+        cerrarFiltrosEnMovil();
     }
-    
+
     function mostrarPagina() {
         const tbody = document.getElementById('tableBody'); tbody.innerHTML = '';
         const inicio = (paginaActual-1)*registrosPorPagina, paginaDatos = datosFiltrados.slice(inicio, inicio+registrosPorPagina);
@@ -732,7 +1060,7 @@
         document.getElementById('btnPrev').disabled = (paginaActual===1);
         document.getElementById('btnNext').disabled = (paginaActual===totalPaginas);
     }
-    
+
     function actualizarKPI() {
         document.getElementById('totalGeneralCard').innerText = todosExpedientes.length;
         document.getElementById('totalFiltradosCard').innerText = datosFiltrados.length;
@@ -744,21 +1072,44 @@
         const countsArray = Object.values(conteo);
         let isEqual = countsArray.length > 1 ? countsArray.every(c => c === countsArray[0]) : true;
         const equidadDiv = document.getElementById('equidadCarga');
-        if (countsArray.length === 0) equidadDiv.innerHTML = '<span class="equality-green">📊 Sin empleados asignados</span>';
-        else if (isEqual) equidadDiv.innerHTML = '<span class="equality-green">✅ Existe igualdad de cantidades</span>';
-        else equidadDiv.innerHTML = '<span class="equality-red">❌ No existe igualdad de cantidades</span>';
+        if (countsArray.length === 0) equidadDiv.innerHTML = '<span class="equality-green">Sin empleados asignados</span>';
+        else if (isEqual) equidadDiv.innerHTML = '<span class="equality-green">Existe igualdad de cantidades</span>';
+        else equidadDiv.innerHTML = '<span class="equality-red">No existe igualdad de cantidades</span>';
     }
-    
+
     function cambiarPagina(delta) { const total = Math.ceil(datosFiltrados.length/registrosPorPagina)||1; let nueva = paginaActual+delta; if(nueva>=1 && nueva<=total){ paginaActual=nueva; mostrarPagina(); } }
     function resetFiltros() { document.getElementById('filterMes').value=''; document.getElementById('filterAnio').value=''; document.getElementById('filterEmpleado').value=''; document.getElementById('filterTipoProceso').value=''; document.getElementById('filterEstado').value=''; document.getElementById('filterMotivoNoAsignacion').value=''; document.getElementById('filterTexto').value=''; aplicarFiltros(); }
     function abrirPanelGestion(id) { const exp = todosExpedientes.find(e=>e.id===id); if(!exp) return; document.getElementById('modalIdUnico').value=exp.id; document.getElementById('modalExpedienteTexto').innerText=exp.expediente; document.getElementById('modalFechaEntradaTexto').innerText=exp.fechaStr; document.getElementById('modalTipoProceso').value=exp.tipoProceso||'Sin Definir'; const selectEmp = document.getElementById('modalEmpleado'); selectEmp.innerHTML = '<option value="Sin Asignar">Sin Asignar</option>'; LISTA_EMPLEADOS_FIJA.forEach(emp=>selectEmp.innerHTML+=`<option value="${emp}">${emp}</option>`); let valor = exp.usuarioAsignado; if(valor!=='Sin Asignar' && !LISTA_EMPLEADOS_FIJA.includes(valor)) valor='Sin Asignar'; selectEmp.value=valor; document.getElementById('modalFechaAsignacion').value=exp.fechaAsignacion||''; document.getElementById('modalFechaControl').value=exp.fechaPaseControl||''; document.getElementById('modalFechaFirma').value=exp.fechaFirmaDefensor||''; document.getElementById('modalMotivoNoAsignacion').value=exp.motivoNoAsignacion||''; new bootstrap.Modal(document.getElementById('detalleCausaModal')).show(); }
-    async function guardarCambiosTarea() { const id = document.getElementById('modalIdUnico').value, tipo = document.getElementById('modalTipoProceso').value, emp = document.getElementById('modalEmpleado').value, fAsig = document.getElementById('modalFechaAsignacion').value, fControl = document.getElementById('modalFechaControl').value, fFirma = document.getElementById('modalFechaFirma').value, motivo = (emp !== 'Sin Asignar') ? '' : document.getElementById('modalMotivoNoAsignacion').value; const statusDiv = document.getElementById('status'); statusDiv.innerHTML = "⏳ Actualizando..."; try { await coleccionTareas.doc(id).update({ tipoProceso: tipo, usuarioAsignado: emp, fechaAsignacion: fAsig, fechaPaseControl: fControl, fechaFirmaDefensor: fFirma, motivoNoAsignacion: motivo }); bootstrap.Modal.getInstance(document.getElementById('detalleCausaModal')).hide(); await cargarHistorialGuardado(); statusDiv.innerHTML = "✅ Cambios guardados."; } catch(e){ alert("Error: "+e.message); } }
+    async function guardarCambiosTarea() { const id = document.getElementById('modalIdUnico').value, tipo = document.getElementById('modalTipoProceso').value, emp = document.getElementById('modalEmpleado').value, fAsig = document.getElementById('modalFechaAsignacion').value, fControl = document.getElementById('modalFechaControl').value, fFirma = document.getElementById('modalFechaFirma').value, motivo = (emp !== 'Sin Asignar') ? '' : document.getElementById('modalMotivoNoAsignacion').value; const statusDiv = document.getElementById('status'); statusDiv.innerHTML = "Actualizando..."; try { await coleccionTareas.doc(id).update({ tipoProceso: tipo, usuarioAsignado: emp, fechaAsignacion: fAsig, fechaPaseControl: fControl, fechaFirmaDefensor: fFirma, motivoNoAsignacion: motivo }); bootstrap.Modal.getInstance(document.getElementById('detalleCausaModal')).hide(); await cargarHistorialGuardado(); statusDiv.innerHTML = "Cambios guardados."; } catch(e){ alert("Error: "+e.message); } }
     function imprimirFiltrados() { if(!datosFiltrados.length) return alert("No hay registros."); let filas=''; datosFiltrados.forEach(exp=>{ const msAC=getTiempoAsignacionControl(exp), msCF=getTiempoControlFirma(exp); let motivo='—', estilo=''; if(exp.estadoControl==='Sin Asignar' && exp.motivoNoAsignacion){ motivo=exp.motivoNoAsignacion; estilo=' style="color:red;"'; } filas+=`<tr><td>${exp.movimiento}</td><td>${exp.fechaStr}</td><td>${exp.expediente}</td><td>${exp.tipoProceso}</td><td>${exp.usuarioAsignado}</td><td>${formatFechaTabla(exp.fechaAsignacion)}</td><td>${msToLegible(msAC)}</td><td>${formatFechaTabla(exp.fechaPaseControl)}</td><td>${msToLegible(msCF)}</td><td>${formatFechaTabla(exp.fechaFirmaDefensor)}</td><td>${exp.estadoControl}</td><td${estilo}>${motivo}</td></tr>`; }); const win = window.open(); win.document.write(`<html><head><title>Reporte de Tareas</title><style>body{font-family:sans-serif;padding:20px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #aaa;padding:6px}</style></head><body><h2>Reporte de Expedientes</h2><table border="1"><thead><tr><th>Mov</th><th>Entrada</th><th>Expediente</th><th>Tipo</th><th>Empleado</th><th>Asignado</th><th>Tiempo→Control</th><th>Control</th><th>Tiempo→Firma</th><th>Firma Def.</th><th>Estado</th><th>Motivo</th></tr></thead><tbody>${filas}</tbody></table></body></html>`); win.document.close(); win.print(); }
-    
+
+    // ---------- TOGGLE FILTROS (móvil) ----------
+    function toggleFiltros() {
+        const container = document.getElementById('filtrosContainer');
+        const btn = document.getElementById('btnToggleFiltros');
+        if (container.classList.contains('visible')) {
+            container.classList.remove('visible');
+            btn.textContent = 'Filtros';
+        } else {
+            container.classList.add('visible');
+            btn.textContent = 'Cerrar filtros';
+        }
+    }
+
+    // Cerrar automáticamente en móvil después de aplicar/resetear (opcional)
+    function cerrarFiltrosEnMovil() {
+        if (window.innerWidth <= 768) {
+            const container = document.getElementById('filtrosContainer');
+            const btn = document.getElementById('btnToggleFiltros');
+            if (container.classList.contains('visible')) {
+                container.classList.remove('visible');
+                btn.textContent = 'Filtros';
+            }
+        }
+    }
+
     function iniciarSistema() {
-        // Limpiar posible intervalo anterior
         if (intervaloCronometros) clearInterval(intervaloCronometros);
-        // Remover eventos duplicados del input file
         const uploadInput = document.getElementById('pdfUpload');
         if (uploadInput) {
             uploadInput.onchange = null;
@@ -766,7 +1117,7 @@
         }
         cargarHistorialGuardado();
     }
-    
+
     function validarAcceso() {
         const password = document.getElementById('accessPassword').value;
         const errorDiv = document.getElementById('loginError');
@@ -780,7 +1131,6 @@
         }
     }
 
-    // --- NUEVO: Permitir ingresar con la tecla Enter en el campo de contraseña ---
     document.getElementById('accessPassword').addEventListener('keypress', function(event) {
         if (event.key === 'Enter') {
             event.preventDefault();
